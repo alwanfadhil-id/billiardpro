@@ -1,36 +1,60 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+// Halaman publik
 Route::view('/', 'welcome');
 
-Route::get('/dashboard', \App\Livewire\Dashboard::class)
-    ->middleware(['auth', 'verified'])
-    ->name('dashboard');
+// Autentikasi (diimpor dari auth.php)
+require __DIR__.'/auth.php';
 
-Route::get('reports', function () {
-    return view('reports.index');
-})->middleware(['auth', 'verified'])->name('reports.index');
+// Rute yang memerlukan autentikasi & verifikasi email
+Route::middleware(['auth', 'verified'])->group(function () {
 
-Route::get('tables/manage', function () {
-    return view('tables.manage');
-})->middleware(['auth', 'verified'])->name('tables.manage');
+    // 🔹 DASHBOARD UTAMA
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->name('dashboard');
 
-Route::get('users', function () {
-    return view('users.index');
-})->middleware(['auth', 'verified'])->name('users.list');
+    // 🔹 TRANSAKSI
+    Route::get('/transactions/start/{table}', \App\Livewire\Transactions\StartSession::class)
+        ->name('transactions.start');
+        
+    Route::get('/transactions/add-items/{transaction}', \App\Livewire\Transactions\AddItems::class)
+        ->name('transactions.add-items');
+        
+    Route::get('/transactions/payment/{transaction}', \App\Livewire\Transactions\PaymentProcess::class)
+        ->name('transactions.payment');
 
-Route::view('profile', 'profile')
-    ->middleware(['auth'])
-    ->name('profile');
+    // 🔹 LAPORAN HARIAN
+    Route::get('/reports', \App\Livewire\Reports\DailyReport::class)
+        ->name('reports.index');
 
-Route::post('logout', function () {
+    // 🔹 KELOLA MEJA (admin only — proteksi role bisa ditambah di Livewire)
+    Route::get('/tables/manage', \App\Livewire\Tables\TableForm::class)
+        ->name('tables.manage');
+
+    // 🔹 KELOLA USER (admin only)
+    Route::get('/users', \App\Livewire\Users\UserList::class)
+        ->name('users.list');
+
+    // 🔹 KELOLA PRODUK
+    Route::get('/products', \App\Livewire\Products\ProductList::class)
+        ->name('products.index');
+
+    // 🔹 KELOLA PENGATURAN
+    Route::get('/settings', \App\Livewire\Settings\SettingsForm::class)
+        ->name('settings.index');
+
+    // 🔹 PROFILE
+    Route::view('/profile', 'profile')->name('profile');
+});
+
+// Logout (hanya butuh auth)
+Route::post('/logout', function () {
     Auth::logout();
     request()->session()->invalidate();
     request()->session()->regenerateToken();
     return redirect('/');
-})->middleware(['auth'])->name('logout');
-
-require __DIR__.'/auth.php';
+})->middleware('auth')->name('logout');

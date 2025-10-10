@@ -1,103 +1,179 @@
 <div>
-    <!-- Enhanced responsive table grid -->
-    <div class="table-grid">
+    <!-- Header Waktu -->
+    <div class="bg-blue-600 text-white rounded-t-xl p-4 shadow">
+        <div class="flex justify-between items-center">
+            <div>
+                <h2 class="text-sm opacity-80">Waktu Sekarang</h2>
+                <div id="current-time" class="text-2xl font-semibold">{{ now()->format('H:i:s') }}</div>
+                <div class="text-xs opacity-80">{{ now()->translatedFormat('l, j F Y') }}</div>
+            </div>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 opacity-80" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        </div>
+    </div>
+
+    <!-- Summary Cards - Versi Admin (Dark Theme) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 my-4 px-4">
+        <!-- Pendapatan Hari Ini -->
+        <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 shadow">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-xs text-gray-400 mb-1">Pendapatan Hari Ini</p>
+                    <h3 class="text-lg font-bold text-green-400">
+                        Rp {{ number_format($todayRevenue, 0, ',', '.') }}
+                    </h3>
+                    <p class="text-xs text-gray-500">{{ $completedTransactions }} transaksi selesai</p>
+                </div>
+                <div class="p-2 bg-green-900/30 rounded-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Meja Tersedia -->
+        <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 shadow">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-xs text-gray-400 mb-1">Meja Tersedia</p>
+                    <h3 class="text-lg font-bold text-blue-400">{{ $availableTables }}/{{ $totalTables }}</h3>
+                    <p class="text-xs text-gray-500">{{ $occupiedTables }} terpakai</p>
+                </div>
+                <div class="p-2 bg-blue-900/30 rounded-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sesi Aktif -->
+        <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 shadow">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-xs text-gray-400 mb-1">Sesi Aktif</p>
+                    <h3 class="text-lg font-bold text-yellow-400">{{ $activeSessions }}</h3>
+                    <p class="text-xs text-gray-500">Sedang berjalan</p>
+                </div>
+                <div class="p-2 bg-yellow-900/30 rounded-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Maintenance -->
+        <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 shadow">
+            <div class="flex justify-between items-start">
+                <div>
+                    <p class="text-xs text-gray-400 mb-1">Meja Maintenance</p>
+                    <h3 class="text-lg font-bold text-red-400">{{ $maintenanceTables }}</h3>
+                    <p class="text-xs text-gray-500">Tidak dapat digunakan</p>
+                </div>
+                <div class="p-2 bg-red-900/30 rounded-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search & Filter Bar -->
+    <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 shadow mx-4 mb-4">
+        <div class="flex flex-col md:flex-row gap-3">
+            <div class="flex-1 relative">
+                <input
+                    wire:model.live="search"
+                    type="text"
+                    placeholder="Cari nomor atau tipe meja..."
+                    class="w-full pl-10 pr-4 py-2 border border-gray-600 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                />
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+            </div>
+            <select
+                wire:model.live="filterStatus"
+                class="md:w-48 px-4 py-2 border border-gray-600 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+            >
+                <option value="all">Semua Status</option>
+                <option value="available">Tersedia</option>
+                <option value="occupied">Terpakai</option>
+                <option value="maintenance">Maintenance</option>
+            </select>
+        </div>
+        
+        <!-- Legenda -->
+        <div class="flex items-center gap-4 mt-3 text-sm text-gray-300">
+            <span>Legenda:</span>
+            <div class="flex items-center gap-1">
+                <div class="w-3 h-3 bg-green-500 rounded"></div>
+                <span>Tersedia</span>
+            </div>
+            <div class="flex items-center gap-1">
+                <div class="w-3 h-3 bg-red-500 rounded"></div>
+                <span>Terpakai</span>
+            </div>
+            <div class="flex items-center gap-1">
+                <div class="w-3 h-3 bg-gray-500 rounded"></div>
+                <span>Maintenance</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Grid Meja - Versi Admin (Dark Theme) -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 px-4 pb-6">
         @foreach($tables as $table)
             @php
-                $statusBg = [
-                    'available' => 'bg-gradient-to-br from-green-500 to-green-600',
-                    'occupied' => 'bg-gradient-to-br from-red-500 to-red-600', 
-                    'maintenance' => 'bg-gradient-to-br from-gray-500 to-gray-600'
-                ][$table->status] ?? 'bg-gradient-to-br from-gray-500 to-gray-600';
-                
-                $statusBgDark = [
-                    'available' => 'dark:from-green-600 dark:to-green-700',
-                    'occupied' => 'dark:from-red-600 dark:to-red-700', 
-                    'maintenance' => 'dark:from-gray-600 dark:to-gray-700'
-                ][$table->status] ?? 'dark:from-gray-600 dark:to-gray-700';
-                
-                // Get the first ongoing transaction for this table (using eager-loaded relationship)
-                $ongoingTransaction = $table->transactions->first();
+                $bgColor = match($table->status) {
+                    'available' => 'bg-green-700 hover:bg-green-600',
+                    'occupied' => 'bg-red-700 hover:bg-red-600',
+                    'maintenance' => 'bg-gray-700',
+                    default => 'bg-gray-600'
+                };
+                $isClickable = $table->status === 'available';
+                $statusBadge = match($table->status) {
+                    'available' => 'bg-green-600 text-white',
+                    'occupied' => 'bg-red-600 text-white',
+                    'maintenance' => 'bg-gray-600 text-white',
+                    default => 'bg-gray-500 text-white'
+                };
             @endphp
-            
+
             <div
-                class="table-card {{ $table->status === 'available' ? 'table-available' : ($table->status === 'occupied' ? 'table-occupied' : 'table-maintenance') }}"
-                wire:click="handleTableClick({{ $table->id }})"
-                role="button"
-                tabindex="0"
-                aria-label="{{ $table->name }}, Status: {{ ucfirst($table->status) }}"
+                {{ $isClickable ? 'wire:click="startSession(' . $table->id . ')"' : '' }}
+                class="{{ $bgColor }} text-white rounded-lg p-4 shadow cursor-pointer transition-all duration-200 hover:scale-[1.02] {{ $isClickable ? '' : 'opacity-80 cursor-not-allowed' }}"
             >
-                <div class="p-5">
-                    <div class="flex justify-between items-start mb-3">
-                        <div>
-                            <h2 class="table-title">{{ $table->name }}</h2>
-                            <p class="table-subtitle">Meja Billiard</p>
-                        </div>
-                        <span class="status-badge">
-                            {{ ucfirst($table->status) }}
-                        </span>
-                    </div>
-                    
-                    <div class="mb-4">
-                        <div class="rate-display">
-                            <div class="rate-label">Tarif</div>
-                            <div class="rate-value">
-                                Rp {{ number_format($table->hourly_rate, 0, ',', '.') }}/jam
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="text-center">
-                        @if($table->status === 'available')
-                            <div class="mt-2">
-                                <p class="text-white font-semibold">Klik untuk Mulai</p>
-                                <div class="mt-3">
-                                    <div class="action-icon">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
-                                    </div>
-                                </div>
-                            </div>
-                        @elseif($table->status === 'occupied')
-                            @if($ongoingTransaction)
-                                @php
-                                    $start = $ongoingTransaction->started_at;
-                                    $now = now();
-                                    $diffInMinutes = $start->diffInMinutes($now);
-                                    $hours = floor($diffInMinutes / 60);
-                                    $minutes = $diffInMinutes % 60;
-                                    $durationText = $hours . ' jam ' . $minutes . ' menit';
-                                @endphp
-                                <div class="mt-2">
-                                    <div class="timer-display">{{ $durationText }}</div>
-                                    <p class="cost-display">Biaya: Rp {{ number_format(ceil($diffInMinutes / 60) * $table->hourly_rate, 0, ',', '.') }}</p>
-                                    <div class="mt-2">
-                                        <div class="action-icon">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
-                                        </div>
-                                    </div>
-                                    <p class="text-white font-semibold mt-2">Klik untuk Selesai</p>
-                                </div>
-                            @endif
-                        @elseif($table->status === 'maintenance')
-                            <div class="mt-2">
-                                <p class="text-white">Dalam Perawatan</p>
-                                <div class="mt-3">
-                                    <div class="action-icon">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        </svg>
-                                    </div>
-                                </div>
-                            </div>
-                        @endif
-                    </div>
+                <div class="flex justify-between items-start mb-2">
+                    <h3 class="text-xl font-bold">#{{ $table->name }}</h3>
+                    <span class="px-2 py-0.5 {{ $statusBadge }} text-xs rounded">
+                        {{ ucfirst($table->status) }}
+                    </span>
+                </div>
+                <div class="text-center">
+                    <p class="text-xs opacity-90 mb-1">{{ $table->table_type->name ?? 'Meja Biasa' }}</p>
+                    <p class="text-sm font-semibold">Tarif<br>Rp {{ number_format($table->hourly_rate, 0, ',', '.') }}/jam</p>
                 </div>
             </div>
         @endforeach
     </div>
 </div>
+
+@push('scripts')
+<script>
+    // Update waktu real-time
+    function updateTime() {
+        const now = new Date();
+        const timeString = now.toLocaleTimeString('id-ID', { hour12: false });
+        document.getElementById('current-time').textContent = timeString;
+    }
+    setInterval(updateTime, 1000);
+</script>
+@endpush

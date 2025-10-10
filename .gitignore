@@ -21,3 +21,5 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+resources/views/dashboard.blade.php
+dashboard admin2.png
