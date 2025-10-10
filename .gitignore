@@ -21,5 +21,10 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+<<<<<<< Updated upstream
 resources/views/dashboard.blade.php
 dashboard admin2.png
+=======
+image.png
+.gitignore
+>>>>>>> Stashed changes
