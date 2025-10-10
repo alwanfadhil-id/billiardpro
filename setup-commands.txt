@@ -1,0 +1,100 @@
+# Laravel 11 Setup with Breeze + Livewire + DaisyUI + Dark Mode
+
+## Initial Laravel Installation
+
+```bash
+# Create new Laravel 11 project
+composer create-project laravel/laravel billiardpro
+
+# Navigate to project directory
+cd billiardpro
+
+# Install Laravel Breeze with Livewire stack
+composer require laravel/breeze --dev
+
+# Install Breeze with Livewire scaffolding
+php artisan breeze:install livewire
+
+# Install Node dependencies
+npm install
+
+# Install DaisyUI and related packages
+npm install -D daisyui@latest
+
+# Run the database migrations (make sure your .env is configured)
+php artisan migrate
+```
+
+## Configure Tailwind CSS and DaisyUI
+
+Update `tailwind.config.js`:
+
+```js
+/** @type {import('tailwindcss').Config} */
+export default {
+    content: [
+        "./resources/**/*.blade.php",
+        "./resources/**/*.js",
+        "./resources/**/*.vue",
+        "./vendor/laravel/framework/src/illuminate/Foundation/Console/stubs/migrations/*.php",
+    ],
+    theme: {
+        extend: {},
+    },
+    plugins: [require("daisyui")],
+    daisyui: {
+        themes: ["light", "dark"],
+    },
+};
+```
+
+## Modify app.css to include Tailwind directives
+
+Update `resources/css/app.css`:
+
+```css
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+```
+
+## Build assets for development
+
+```bash
+# Compile CSS and JS assets (watch for changes)
+npm run dev
+
+# Or build for production
+npm run build
+```
+
+## Additional Laravel configuration
+
+```bash
+# Generate application key
+php artisan key:generate
+
+# Clear configuration cache if needed
+php artisan config:clear
+php artisan cache:clear
+```
+
+## Install additional tools (optional)
+
+```bash
+# For database management
+composer require doctrine/dbal
+
+# For better debugging
+composer require barryvdh/laravel-debugbar --dev
+```
+
+## Run the application
+
+```bash
+# Start PHP development server
+php artisan serve
+
+# In another terminal, watch for asset changes
+npm run dev
+```
