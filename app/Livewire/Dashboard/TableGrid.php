@@ -10,6 +10,8 @@ class TableGrid extends Component
 {
     public $search = '';
     public $filterStatus = 'all';
+    public $selectedTable = null;
+    public $showModal = false;
 
     protected $listeners = ['tableStatusUpdated' => '$refresh'];
 
@@ -56,6 +58,20 @@ class TableGrid extends Component
         ));
     }
 
+    public function selectTable($tableId)
+    {
+        $this->selectedTable = Table::with(['transactions' => function($query) {
+            $query->where('status', 'ongoing')->latest();
+        }])->findOrFail($tableId);
+        $this->showModal = true;
+    }
+
+    public function closeModal()
+    {
+        $this->showModal = false;
+        $this->selectedTable = null;
+    }
+
     public function startSession($tableId)
     {
         $table = Table::findOrFail($tableId);
@@ -67,5 +83,75 @@ class TableGrid extends Component
 
         // Redirect ke halaman mulai sesi (atau buka modal)
         return redirect()->route('transactions.start', ['table' => $tableId]);
+    }
+    
+    public function markAsOccupied($tableId)
+    {
+        $table = Table::findOrFail($tableId);
+        
+        if ($table->status !== 'available') {
+            $this->dispatch('alert', type: 'error', message: 'Meja tidak tersedia untuk digunakan.');
+            return;
+        }
+        
+        $table->update(['status' => 'occupied']);
+        $this->dispatch('tableStatusUpdated');
+        $this->closeModal();
+        
+        // Create a new transaction
+        $transaction = Transaction::create([
+            'table_id' => $table->id,
+            'user_id' => auth()->id(),
+            'started_at' => now(),
+            'status' => 'ongoing',
+        ]);
+        
+        $this->dispatch('alert', type: 'success', message: 'Status meja telah diubah menjadi terpakai.');
+    }
+    
+    public function markAsAvailable($tableId)
+    {
+        $table = Table::findOrFail($tableId);
+        
+        // Update any ongoing transactions to completed
+        $ongoingTransaction = $table->transactions()->where('status', 'ongoing')->first();
+        if ($ongoingTransaction) {
+            $ongoingTransaction->update([
+                'ended_at' => now(),
+                'status' => 'completed'
+            ]);
+        }
+        
+        $table->update(['status' => 'available']);
+        $this->dispatch('tableStatusUpdated');
+        $this->closeModal();
+        
+        $this->dispatch('alert', type: 'success', message: 'Status meja telah diubah menjadi tersedia.');
+    }
+    
+    public function markAsMaintenance($tableId)
+    {
+        $table = Table::findOrFail($tableId);
+        
+        // If the table was occupied, complete the transaction
+        $ongoingTransaction = $table->transactions()->where('status', 'ongoing')->first();
+        if ($ongoingTransaction) {
+            $ongoingTransaction->update([
+                'ended_at' => now(),
+                'status' => 'completed'
+            ]);
+        }
+        
+        $table->update(['status' => 'maintenance']);
+        $this->dispatch('tableStatusUpdated');
+        $this->closeModal();
+        
+        $this->dispatch('alert', type: 'success', message: 'Status meja telah diubah menjadi maintenance.');
+    }
+    
+    // Method to support Livewire polling for real-time updates
+    public function pollingRefresh()
+    {
+        $this->dispatch('tableStatusUpdated');
     }
 }

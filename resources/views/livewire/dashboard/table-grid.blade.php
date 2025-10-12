@@ -1,4 +1,4 @@
-<div>
+<div wire:poll.30s>
     <!-- Header Waktu -->
     <div class="bg-blue-600 text-white rounded-t-xl p-4 shadow">
         <div class="flex justify-between items-center">
@@ -138,18 +138,18 @@
                     'maintenance' => 'bg-gray-700',
                     default => 'bg-gray-600'
                 };
-                $isClickable = $table->status === 'available';
                 $statusBadge = match($table->status) {
                     'available' => 'bg-green-600 text-white',
                     'occupied' => 'bg-red-600 text-white',
                     'maintenance' => 'bg-gray-600 text-white',
                     default => 'bg-gray-500 text-white'
                 };
+                $isClickable = true; // All tables can be clicked to show modal
             @endphp
 
             <div
-                {{ $isClickable ? 'wire:click="startSession(' . $table->id . ')"' : '' }}
-                class="{{ $bgColor }} text-white rounded-lg p-4 shadow cursor-pointer transition-all duration-200 hover:scale-[1.02] {{ $isClickable ? '' : 'opacity-80 cursor-not-allowed' }}"
+                wire:click="selectTable({{ $table->id }})"
+                class="{{ $bgColor }} text-white rounded-lg p-4 shadow cursor-pointer transition-all duration-200 hover:scale-[1.02]"
             >
                 <div class="flex justify-between items-start mb-2">
                     <h3 class="text-xl font-bold">#{{ $table->name }}</h3>
@@ -158,12 +158,187 @@
                     </span>
                 </div>
                 <div class="text-center">
-                    <p class="text-xs opacity-90 mb-1">{{ $table->table_type->name ?? 'Meja Biasa' }}</p>
-                    <p class="text-sm font-semibold">Tarif<br>Rp {{ number_format($table->hourly_rate, 0, ',', '.') }}/jam</p>
+                    <p class="text-sm font-semibold">Rp {{ number_format($table->hourly_rate, 0, ',', '.') }}/jam</p>
                 </div>
             </div>
         @endforeach
     </div>
+
+    <!-- Modal for Table Details -->
+    @if($showModal && $selectedTable)
+    <div 
+        x-data="{ open: @entangle('showModal') }"
+        x-show="open"
+        x-cloak
+        @keydown.escape.window="open = false"
+        class="fixed inset-0 z-50 overflow-y-auto"
+    >
+        <div 
+            x-show="open"
+            x-transition:enter="ease-out duration-200"
+            x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100"
+            x-transition:leave="ease-in duration-150"
+            x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0"
+            class="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
+            @click="open = false"
+        ></div>
+        <div 
+            x-show="open" 
+            x-transition:enter="ease-out duration-200"
+            x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+            x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+            x-transition:leave="ease-in duration-150"
+            x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+            x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+            class="flex items-center justify-center min-h-screen p-4"
+        >
+            <div 
+                class="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto"
+                @click.outside="open = false"
+            >
+                <!-- Modal Header -->
+                <div class="flex justify-between items-center p-6 border-b border-gray-200">
+                    <h3 class="text-xl font-bold">Detail Meja #{{ $selectedTable->name }}</h3>
+                    <button 
+                        @click="open = false" 
+                        class="text-gray-500 hover:text-gray-700"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                
+                <!-- Modal Body -->
+                <div class="p-6">
+                    <!-- Status Indicator -->
+                    <div class="flex items-center mb-6">
+                        <div class="w-4 h-4 rounded-full 
+                            @if($selectedTable->status === 'available') bg-green-500
+                            @elseif($selectedTable->status === 'occupied') bg-red-500
+                            @else bg-yellow-500 @endif 
+                            mr-2"></div>
+                        <span class="font-semibold capitalize text-lg">{{ $selectedTable->status }}</span>
+                    </div>
+                    
+                    <!-- Table Details -->
+                    <div class="space-y-4 mb-6">
+                        <div class="flex justify-between border-b pb-2">
+                            <span class="text-gray-600">Nomor Meja:</span>
+                            <span class="font-medium">#{{ $selectedTable->name }}</span>
+                        </div>
+                        
+                        <div class="flex justify-between border-b pb-2">
+                            <span class="text-gray-600">Tarif per Jam:</span>
+                            <span class="font-medium">Rp {{ number_format($selectedTable->hourly_rate, 0, ',', '.') }}</span>
+                        </div>
+                        
+                        <!-- Status-specific details -->
+                        @if($selectedTable->status === 'available')
+                            <div class="flex justify-between border-b pb-2">
+                                <span class="text-gray-600">Status:</span>
+                                <span class="font-medium text-green-600">Tersedia</span>
+                            </div>
+                            <div class="flex justify-between border-b pb-2">
+                                <span class="text-gray-600">Terakhir Dibersihkan:</span>
+                                <span class="font-medium">{{ $selectedTable->updated_at->format('d/m/Y H:i') }}</span>
+                            </div>
+                            
+                        @elseif($selectedTable->status === 'occupied')
+                            <div class="flex justify-between border-b pb-2">
+                                <span class="text-gray-600">Status:</span>
+                                <span class="font-medium text-red-600">Terpakai</span>
+                            </div>
+                            @php
+                                $ongoingTransaction = $selectedTable->transactions()->where('status', 'ongoing')->first();
+                            @endphp
+                            @if($ongoingTransaction)
+                                <div class="flex justify-between border-b pb-2">
+                                    <span class="text-gray-600">Durasi:</span>
+                                    <span class="font-medium">{{ $ongoingTransaction->started_at->diffForHumans() }}</span>
+                                </div>
+                                <div class="flex justify-between border-b pb-2">
+                                    <span class="text-gray-600">Waktu Mulai:</span>
+                                    <span class="font-medium">{{ $ongoingTransaction->started_at->format('d/m/Y H:i') }}</span>
+                                </div>
+                            @endif
+                            
+                        @elseif($selectedTable->status === 'maintenance')
+                            <div class="flex justify-between border-b pb-2">
+                                <span class="text-gray-600">Status:</span>
+                                <span class="font-medium text-yellow-600">Maintenance</span>
+                            </div>
+                            <div class="flex justify-between border-b pb-2">
+                                <span class="text-gray-600">Alasan:</span>
+                                <span class="font-medium">Cleaning in progress</span>
+                            </div>
+                            <div class="flex justify-between border-b pb-2">
+                                <span class="text-gray-600">Petugas:</span>
+                                <span class="font-medium">-</span>
+                            </div>
+                        @endif
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="flex flex-col space-y-3">
+                        @if($selectedTable->status === 'available')
+                            <button 
+                                wire:click="markAsOccupied({{ $selectedTable->id }})"
+                                class="btn btn-error text-white"
+                            >
+                                Tandai Sebagai Terpakai
+                            </button>
+                            
+                            <button 
+                                wire:click="startSession({{ $selectedTable->id }})"
+                                class="btn btn-primary text-white"
+                            >
+                                Mulai Sesi Baru
+                            </button>
+                        @elseif($selectedTable->status === 'occupied')
+                            <button 
+                                wire:click="markAsAvailable({{ $selectedTable->id }})"
+                                class="btn btn-success text-white"
+                            >
+                                Tandai Sebagai Tersedia
+                            </button>
+                            
+                            <button 
+                                class="btn btn-primary text-white"
+                                disabled
+                            >
+                                Lihat Order
+                            </button>
+                        @elseif($selectedTable->status === 'maintenance')
+                            <button 
+                                wire:click="markAsAvailable({{ $selectedTable->id }})"
+                                class="btn btn-success text-white"
+                            >
+                                Tandai Sebagai Tersedia
+                            </button>
+                            
+                            <button 
+                                class="btn btn-warning text-white"
+                                disabled
+                            >
+                                Lihat Log Maintenance
+                            </button>
+                        @endif
+                        
+                        <button 
+                            @click="open = false"
+                            class="btn btn-ghost"
+                        >
+                            Tutup
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
 </div>
 
 @push('scripts')
@@ -175,5 +350,19 @@
         document.getElementById('current-time').textContent = timeString;
     }
     setInterval(updateTime, 1000);
+    
+    // Real-time updates using API
+    function fetchTableStatuses() {
+        fetch('/api/tables/statuses')
+            .then(response => response.json())
+            .then(data => {
+                // Handle real-time updates if needed
+                // This could trigger Livewire events to update specific parts of the UI
+            })
+            .catch(error => console.error('Error fetching table statuses:', error));
+    }
+    
+    // Update periodically every 30 seconds
+    setInterval(fetchTableStatuses, 30000);
 </script>
 @endpush

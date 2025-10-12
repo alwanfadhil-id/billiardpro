@@ -2,7 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\TablesController;
+use App\Http\Controllers\Api\TableController;
 use App\Http\Controllers\Api\ProductsController;
 use App\Http\Controllers\Api\TransactionsController;
 use App\Http\Controllers\Api\UsersController;
@@ -23,7 +23,9 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 // Public API routes for tables
-Route::apiResource('tables', TablesController::class);
+Route::apiResource('tables', TableController::class);
+Route::get('tables/statuses', [TableController::class, 'getStatuses']);
+
 Route::apiResource('products', ProductsController::class);
 Route::apiResource('transactions', TransactionsController::class);
 Route::apiResource('users', UsersController::class);
