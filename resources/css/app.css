@@ -2,6 +2,26 @@
 @tailwind components;
 @tailwind utilities;
 
+/* DaisyUI utilities layer to prevent build errors */
+@layer utilities {
+    /* DaisyUI input classes */
+    .input {
+        @apply px-4 py-2 border rounded-lg bg-white text-gray-700;
+    }
+    
+    .input-bordered {
+        @apply border-gray-300 focus:border-blue-500;
+    }
+    
+    .select {
+        @apply px-4 py-2 border rounded-lg bg-white text-gray-700;
+    }
+    
+    .select-bordered {
+        @apply border-gray-300 focus:border-blue-500;
+    }
+}
+
 /* Enhanced Dashboard Styles for BilliardPro */
 @layer components {
     /* Table Card Enhancements */

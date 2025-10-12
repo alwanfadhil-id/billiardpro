@@ -1,168 +1,107 @@
-@extends('layouts.app')
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+            {{ __('Payment Process') }}
+        </h2>
+    </x-slot>
 
-@section('header')
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-        <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Payment Process</h1>
-        <button onclick="toggleDarkMode()" class="btn btn-ghost">
-            <span id="theme-icon">🌙</span>
-        </button>
-    </div>
-@endsection
-
-@section('content')
-<div class="container mx-auto px-4 py-6">
-    @if($transaction)
-        <div class="mb-6">
-            <h1 class="text-2xl font-bold text-gray-800">Payment Process</h1>
-            <div class="mt-2 bg-blue-50 p-4 rounded-lg">
-                <p class="text-gray-700"><span class="font-medium">Table:</span> {{ $table->name }}</p>
-                <p class="text-gray-700"><span class="font-medium">Started at:</span> {{ $transaction->started_at->format('d/m/Y H:i') }}</p>
-                <p class="text-gray-700"><span class="font-medium">Current Duration:</span> 
-                    @php
-                        $duration = $transaction->started_at->diff($transaction->ended_at);
-                        $hours = $duration->h + ($duration->days * 24);
-                        $minutes = $duration->i;
-                    @endphp
-                    {{ $hours }}h {{ $minutes }}m (Rounded: {{ ceil($transaction->started_at->diffInMinutes($transaction->ended_at) / 60) }} hours)
-                </p>
-            </div>
-        </div>
-
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- Bill Summary -->
-            <div class="card bg-base-100 shadow-xl">
-                <div class="card-body">
-                    <h2 class="card-title text-lg">Bill Summary</h2>
-                    
-                    <div class="space-y-2">
-                        <div class="flex justify-between">
-                            <span>Table Rate ({{ ceil($transaction->started_at->diffInMinutes($transaction->ended_at) / 60) }} hours × Rp {{ number_format($table->hourly_rate, 0, ',', '.') }}):</span>
-                            <span>Rp {{ number_format($table->hourly_rate * ceil($transaction->started_at->diffInMinutes($transaction->ended_at) / 60), 0, ',', '.') }}</span>
-                        </div>
+    <div class="py-6">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
+                <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-6">Proses Pembayaran</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Transaction Details -->
+                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                        <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Detail Transaksi</h3>
                         
-                        @if($items->count() > 0)
-                            <div class="border-t pt-2 mt-2">
-                                <h3 class="font-medium mb-2">Additional Items:</h3>
-                                @foreach($items as $item)
-                                    <div class="flex justify-between text-sm">
-                                        <span>{{ $item->quantity }} × {{ $item->product->name }}</span>
-                                        <span>Rp {{ number_format($item->total_price, 0, ',', '.') }}</span>
-                                    </div>
-                                @endforeach
+                        <div class="space-y-3">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600 dark:text-gray-300">Meja:</span>
+                                <span class="font-medium">#A01</span>
                             </div>
-                        @endif
+                            <div class="flex justify-between">
+                                <span class="text-gray-600 dark:text-gray-300">Waktu Mulai:</span>
+                                <span class="font-medium">10:00</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600 dark:text-gray-300">Waktu Selesai:</span>
+                                <span class="font-medium">12:30</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600 dark:text-gray-300">Durasi:</span>
+                                <span class="font-medium">3 jam</span>
+                            </div>
+                            <div class="border-t pt-2 mt-2">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600 dark:text-gray-300">Tarif per Jam:</span>
+                                    <span class="font-medium">Rp 50,000</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600 dark:text-gray-300">Subtotal Meja:</span>
+                                    <span class="font-medium">Rp 150,000</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600 dark:text-gray-300">Item Tambahan:</span>
+                                    <span class="font-medium">Rp 25,000</span>
+                                </div>
+                            </div>
+                            <div class="border-t pt-2 mt-2 font-bold text-lg">
+                                <div class="flex justify-between">
+                                    <span>Total:</span>
+                                    <span>Rp 175,000</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Payment Form -->
+                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                        <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Metode Pembayaran</h3>
                         
-                        <div class="border-t pt-2 mt-2">
-                            <div class="flex justify-between font-bold text-lg">
-                                <span>Total:</span>
-                                <span>Rp {{ number_format($totalAmount, 0, ',', '.') }}</span>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Metode Pembayaran</label>
+                                <select class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-600 text-gray-900 dark:text-white">
+                                    <option value="cash">Tunai</option>
+                                    <option value="qris">QRIS</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Jumlah Diterima</label>
+                                <input 
+                                    type="number" 
+                                    placeholder="Masukkan jumlah"
+                                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-600 text-gray-900 dark:text-white"
+                                />
+                            </div>
+                            
+                            <div class="bg-blue-50 dark:bg-blue-900/30 p-3 rounded-lg">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-700 dark:text-gray-300">Kembalian:</span>
+                                    <span class="font-bold">Rp 25,000</span>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4 flex gap-2">
+                                <button class="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 rounded-lg">
+                                    Batal
+                                </button>
+                                <button class="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg">
+                                    Proses Pembayaran
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <!-- Payment Details -->
-            <div class="card bg-base-100 shadow-xl">
-                <div class="card-body">
-                    <h2 class="card-title text-lg">Payment Information</h2>
-                    
-                    <form wire:submit="processPayment">
-                        <div class="form-control mb-4">
-                            <label class="label">
-                                <span class="label-text">Payment Method</span>
-                            </label>
-                            <select wire:model="paymentMethod" class="select select-bordered" required>
-                                <option value="cash">Cash</option>
-                                <option value="qris">QRIS</option>
-                                <option value="debit">Debit Card</option>
-                                <option value="credit">Credit Card</option>
-                                <option value="other">Other</option>
-                            </select>
-                        </div>
-
-                        <div class="form-control mb-4">
-                            <label class="label">
-                                <span class="label-text">Cash Received (Rp)</span>
-                            </label>
-                            <input type="number" 
-                                   wire:model.live="cashReceived" 
-                                   step="100" 
-                                   min="{{ $totalAmount }}"
-                                   class="input input-bordered" 
-                                   required>
-                            <label class="label">
-                                <span class="label-text-alt">Minimum: Rp {{ number_format($totalAmount, 0, ',', '.') }}</span>
-                            </label>
-                        </div>
-
-                        <div class="form-control mb-4">
-                            <label class="label">
-                                <span class="label-text">Change Amount (Rp)</span>
-                            </label>
-                            <input type="number" 
-                                   wire:model="changeAmount" 
-                                   readonly
-                                   class="input input-bordered bg-gray-100" >
-                        </div>
-
-                        <div class="alert alert-info mt-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                            <span>Duration will be rounded up to the nearest hour for billing purposes.</span>
-                        </div>
-
-                        <div class="card-actions justify-end mt-6">
-                            <button type="submit" 
-                                    wire:loading.attr="disabled"
-                                    class="btn btn-primary btn-block">
-                                <span wire:loading.remove wire:target="processPayment">Process Payment</span>
-                                <span wire:loading wire:target="processPayment">Processing...</span>
-                            </button>
-                        </div>
-                    </form>
+                
+                <div class="mt-6 flex justify-end">
+                    <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
+                        Cetak Struk
+                    </button>
                 </div>
             </div>
         </div>
-
-        <!-- Back Button -->
-        <div class="mt-4">
-            <a href="{{ route('dashboard') }}" class="btn btn-ghost">← Back to Dashboard</a>
-        </div>
-    @else
-        <div class="text-center py-8">
-            <p class="text-gray-500">Transaction not found.</p>
-            <a href="{{ route('dashboard') }}" class="btn btn-primary mt-4">Go to Dashboard</a>
-        </div>
-    @endif
-
-    <!-- Success/Error messages -->
-    @if (session()->has('message'))
-        <div class="alert alert-success mb-4">
-            {{ session('message') }}
-        </div>
-    @endif
-
-    @if (session()->has('error'))
-        <div class="alert alert-error mb-4">
-            {{ session('error') }}
-        </div>
-    @endif
-</div>
-@endsection
-
-@push('scripts')
-<script>
-    // Update the theme icon based on current theme
-    document.addEventListener('DOMContentLoaded', function() {
-        const theme = document.documentElement.getAttribute('data-theme');
-        const themeIcon = document.getElementById('theme-icon');
-        if (theme === 'dark') {
-            themeIcon.textContent = '☀️';
-        } else {
-            themeIcon.textContent = '🌙';
-        }
-    });
-</script>
-@endpush>
+    </div>
+</x-app-layout>

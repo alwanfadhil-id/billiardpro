@@ -1,182 +1,136 @@
-@extends('layouts.app')
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+            {{ __('Add Items to Transaction') }}
+        </h2>
+    </x-slot>
 
-@section('header')
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-        <h1 class="text-2xl font-bold">Add Items to Transaction</h1>
-        <button onclick="toggleDarkMode()" class="btn btn-ghost">
-            <span id="theme-icon">🌙</span>
-        </button>
-    </div>
-@endsection
-
-@section('content')
-<div class="container mx-auto px-4 py-6">
-    @if($transaction)
-        <div class="mb-6">
-            <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Add Items to Transaction</h1>
-            <div class="mt-2 bg-blue-50 dark:bg-gray-800 p-4 rounded-lg">
-                <p class="text-gray-700 dark:text-gray-300"><span class="font-medium">Table:</span> {{ $table->name }}</p>
-                <p class="text-gray-700 dark:text-gray-300"><span class="font-medium">Started at:</span> {{ $transaction->started_at->format('d/m/Y H:i') }}</p>
-            </div>
-        </div>
-
-        <!-- Search Products -->
-        <div class="mb-6">
-            <input type="text" 
-                   wire:model.live="search" 
-                   placeholder="Search products..." 
-                   class="input input-bordered w-full max-w-md">
-        </div>
-
-        <!-- Products Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-            @forelse($products as $product)
-                <div class="card bg-base-100 shadow-xl">
-                    <div class="card-body">
-                        <h2 class="card-title text-gray-800 dark:text-white">{{ $product->name }}</h2>
-                        <p class="text-lg font-bold text-blue-600 dark:text-blue-400">Rp {{ number_format($product->price, 0, ',', '.') }}</p>
-                        <div class="card-actions justify-end">
-                            <button wire:click="addToCart({{ $product->id }})" 
-                                    wire:loading.attr="disabled"
-                                    class="btn btn-primary btn-sm">
-                                <span wire:loading.remove wire:target="addToCart({{ $product->id }})">Add to Cart</span>
-                                <span wire:loading wire:target="addToCart({{ $product->id }})">Adding...</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            @empty
-                <div class="col-span-full text-center py-8">
-                    <p class="text-gray-500 dark:text-gray-400">No products found.</p>
-                </div>
-            @endforelse
-        </div>
-
-        <!-- Cart Section -->
-        <div class="card bg-base-100 shadow-xl mb-6">
-            <div class="card-body">
-                <h2 class="card-title text-lg text-gray-800 dark:text-white">Current Items</h2>
+    <div class="py-6">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
+                <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-6">Tambah Item Transaksi</h2>
                 
-                <!-- Existing Items -->
-                @if($existingItems->count() > 0)
-                    <div class="mb-4">
-                        <h3 class="font-medium text-gray-700 dark:text-gray-300 mb-2">Items already in transaction:</h3>
-                        <div class="overflow-x-auto">
-                            <table class="table table-compact w-full">
-                                <thead>
-                                    <tr>
-                                        <th class="text-gray-700 dark:text-gray-300">Product</th>
-                                        <th class="text-gray-700 dark:text-gray-300">Price</th>
-                                        <th class="text-gray-700 dark:text-gray-300">Qty</th>
-                                        <th class="text-gray-700 dark:text-gray-300">Total</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($existingItems as $item)
-                                        <tr>
-                                            <td class="text-gray-800 dark:text-white">{{ $item->product->name }}</td>
-                                            <td class="text-gray-800 dark:text-white">Rp {{ number_format($item->price_per_item, 0, ',', '.') }}</td>
-                                            <td class="text-gray-800 dark:text-white">{{ $item->quantity }}</td>
-                                            <td class="text-gray-800 dark:text-white">Rp {{ number_format($item->total_price, 0, ',', '.') }}</td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Information Panel -->
+                    <div class="lg:col-span-1 bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                        <div class="mb-4">
+                            <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Informasi Transaksi</h3>
+                            <div class="mt-2 space-y-2">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600 dark:text-gray-300">Meja:</span>
+                                    <span class="font-medium">#A01</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600 dark:text-gray-300">Durasi:</span>
+                                    <span class="font-medium">2 jam</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600 dark:text-gray-300">Tarif per jam:</span>
+                                    <span class="font-medium">Rp 50,000</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600 dark:text-gray-300">Subtotal meja:</span>
+                                    <span class="font-medium">Rp 100,000</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6">
+                            <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Total</h3>
+                            <div class="mt-2 p-4 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
+                                <div class="flex justify-between text-lg font-bold">
+                                    <span>Total:</span>
+                                    <span>Rp 100,000</span>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4 flex gap-2">
+                                <button class="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 rounded-lg">
+                                    Kembali
+                                </button>
+                                <button class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg">
+                                    Bayar
+                                </button>
+                            </div>
                         </div>
                     </div>
-                @endif
-
-                <!-- Items in current session cart -->
-                @if(!empty($cart))
-                    <div class="overflow-x-auto mb-4">
-                        <table class="table table-compact w-full">
-                            <thead>
-                                <tr>
-                                    <th class="text-gray-700 dark:text-gray-300">Product</th>
-                                    <th class="text-gray-700 dark:text-gray-300">Price</th>
-                                    <th class="text-gray-700 dark:text-gray-300">Qty</th>
-                                    <th class="text-gray-700 dark:text-gray-300">Total</th>
-                                    <th class="text-gray-700 dark:text-gray-300">Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($cart as $itemId => $item)
-                                    <tr>
-                                        <td class="text-gray-800 dark:text-white">{{ $item['name'] }}</td>
-                                        <td class="text-gray-800 dark:text-white">Rp {{ number_format($item['price'], 0, ',', '.') }}</td>
-                                        <td class="text-gray-800 dark:text-white">
-                                            <div class="flex items-center">
-                                                <button wire:click="updateQuantity({{ $itemId }}, {{ $item['quantity'] - 1 }})" 
-                                                        class="btn btn-xs btn-outline mr-1">-</button>
-                                                <span class="mx-2">{{ $item['quantity'] }}</span>
-                                                <button wire:click="updateQuantity({{ $itemId }}, {{ $item['quantity'] + 1 }})" 
-                                                        class="btn btn-xs btn-outline ml-1">+</button>
-                                            </div>
-                                        </td>
-                                        <td class="text-gray-800 dark:text-white">Rp {{ number_format($item['total'], 0, ',', '.') }}</td>
-                                        <td>
-                                            <button wire:click="removeFromCart({{ $itemId }})" 
-                                                    class="btn btn-xs btn-error">Remove</button>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+                    
+                    <!-- Products Selection -->
+                    <div class="lg:col-span-2">
+                        <div class="mb-4">
+                            <input 
+                                type="text" 
+                                placeholder="Cari produk..." 
+                                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                            />
+                        </div>
+                        
+                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                            <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 shadow cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600">
+                                <div class="text-center">
+                                    <div class="bg-gray-200 dark:bg-gray-600 h-16 rounded mb-2 flex items-center justify-center">
+                                        <span class="text-gray-500 dark:text-gray-400">Es Teh</span>
+                                    </div>
+                                    <h4 class="font-semibold text-gray-800 dark:text-white">Es Teh</h4>
+                                    <p class="text-sm text-gray-600 dark:text-gray-300">Rp 5,000</p>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 shadow cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600">
+                                <div class="text-center">
+                                    <div class="bg-gray-200 dark:bg-gray-600 h-16 rounded mb-2 flex items-center justify-center">
+                                        <span class="text-gray-500 dark:text-gray-400">Kopi</span>
+                                    </div>
+                                    <h4 class="font-semibold text-gray-800 dark:text-white">Kopi</h4>
+                                    <p class="text-sm text-gray-600 dark:text-gray-300">Rp 8,000</p>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 shadow cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600">
+                                <div class="text-center">
+                                    <div class="bg-gray-200 dark:bg-gray-600 h-16 rounded mb-2 flex items-center justify-center">
+                                        <span class="text-gray-500 dark:text-gray-400">Kacang</span>
+                                    </div>
+                                    <h4 class="font-semibold text-gray-800 dark:text-white">Kacang Goreng</h4>
+                                    <p class="text-sm text-gray-600 dark:text-gray-300">Rp 10,000</p>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 shadow cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600">
+                                <div class="text-center">
+                                    <div class="bg-gray-200 dark:bg-gray-600 h-16 rounded mb-2 flex items-center justify-center">
+                                        <span class="text-gray-500 dark:text-gray-400">Rokok</span>
+                                    </div>
+                                    <h4 class="font-semibold text-gray-800 dark:text-white">Rokok</h4>
+                                    <p class="text-sm text-gray-600 dark:text-gray-300">Rp 15,000</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Selected Items -->
+                        <div class="mt-6">
+                            <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-3">Item Terpilih</h3>
+                            <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                                <div class="space-y-2">
+                                    <div class="flex justify-between items-center border-b pb-2">
+                                        <span>Es Teh</span>
+                                        <div class="flex items-center gap-2">
+                                            <button class="w-6 h-6 bg-gray-300 dark:bg-gray-600 rounded text-sm">-</button>
+                                            <span>1</span>
+                                            <button class="w-6 h-6 bg-gray-300 dark:bg-gray-600 rounded text-sm">+</button>
+                                            <span class="ml-2">Rp 5,000</span>
+                                        </div>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span>Subtotal:</span>
+                                        <span>Rp 5,000</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                @endif
-
-                @if(count($cart) > 0 || $existingItems->count() > 0)
-                    <div class="card-actions justify-end">
-                        <button wire:click="proceedToPayment" 
-                                wire:loading.attr="disabled"
-                                class="btn btn-primary">
-                            <span wire:loading.remove wire:target="proceedToPayment">Proceed to Payment</span>
-                            <span wire:loading wire:target="proceedToPayment">Processing...</span>
-                        </button>
-                    </div>
-                @else
-                    <p class="text-center text-gray-500 dark:text-gray-400 py-4">No items added yet.</p>
-                @endif
+                </div>
             </div>
         </div>
-
-        <!-- Back Button -->
-        <div class="mt-4">
-            <a href="{{ route('dashboard') }}" class="btn btn-ghost">← Back to Dashboard</a>
-        </div>
-    @else
-        <div class="text-center py-8">
-            <p class="text-gray-500 dark:text-gray-400">Transaction not found.</p>
-            <a href="{{ route('dashboard') }}" class="btn btn-primary mt-4">Go to Dashboard</a>
-        </div>
-    @endif
-
-    <!-- Success/Error messages -->
-    @if (session()->has('message'))
-        <div class="alert alert-success mb-4">
-            {{ session('message') }}
-        </div>
-    @endif
-
-    @if (session()->has('error'))
-        <div class="alert alert-error mb-4">
-            {{ session('error') }}
-        </div>
-    @endif
-</div>
-@endsection
-
-@push('scripts')
-<script>
-    // Update the theme icon based on current theme
-    document.addEventListener('DOMContentLoaded', function() {
-        const theme = document.documentElement.getAttribute('data-theme');
-        const themeIcon = document.getElementById('theme-icon');
-        if (theme === 'dark') {
-            themeIcon.textContent = '☀️';
-        } else {
-            themeIcon.textContent = '🌙';
-        }
-    });
-</script>
-@endpush>
+    </div>
+</x-app-layout>
