@@ -29,7 +29,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // 🔹 LAPORAN HARIAN
     Route::get('/reports', \App\Livewire\Reports\DailyReport::class)
-        ->name('reports.index');
+        ->name('report.daily');
 
     // 🔹 KELOLA MEJA (admin only — proteksi role bisa ditambah di Livewire)
     Route::get('/tables/manage', \App\Livewire\Tables\TableForm::class)
@@ -41,7 +41,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // 🔹 KELOLA PRODUK
     Route::get('/products', \App\Livewire\Products\ProductList::class)
-        ->name('products.index');
+        ->name('products.list');
 
     // 🔹 KELOLA PENGATURAN
     Route::get('/settings', \App\Livewire\Settings\SettingsForm::class)
