@@ -316,18 +316,18 @@
                         >
                             Tandai Sebagai Terpakai
                         </button>
-                        <button 
-                            wire:click="startSession({{ $selectedTable->id }})"
-                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                        >
-                            Mulai Sesi Baru
-                        </button>
                     @elseif($selectedTable->status === 'occupied')
                         <button 
                             wire:click="markAsAvailable({{ $selectedTable->id }})"
                             class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
                         >
                             Tandai Sebagai Tersedia
+                        </button>
+                        <button 
+                            wire:click="startSession({{ $selectedTable->id }})"
+                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                        >
+                            Mulai Sesi Baru
                         </button>
                     @elseif($selectedTable->status === 'maintenance')
                         <button 
