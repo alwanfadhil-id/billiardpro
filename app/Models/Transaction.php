@@ -71,9 +71,22 @@ class Transaction extends Model
      */
     public function validatePaymentMethod()
     {
-        $validPaymentMethods = ['cash', 'qris', 'debit', 'credit', 'other'];
-        if (!in_array($this->payment_method, $validPaymentMethods)) {
-            throw new \InvalidArgumentException("Payment method must be one of: " . implode(', ', $validPaymentMethods));
+        // For 'ongoing' transactions, payment_method is not required and can be null/empty
+        if ($this->status === 'ongoing') {
+            // If payment_method is provided for ongoing status, it should still be valid
+            if (!is_null($this->payment_method) && $this->payment_method !== '' && 
+                !in_array($this->payment_method, ['cash', 'qris', 'debit', 'credit', 'other'])) {
+                $validPaymentMethods = ['cash', 'qris', 'debit', 'credit', 'other'];
+                throw new \InvalidArgumentException("Payment method must be one of: " . implode(', ', $validPaymentMethods));
+            }
+        }
+        // For 'completed' or 'cancelled' transactions, payment_method is required and must be valid
+        elseif ($this->status === 'completed' || $this->status === 'cancelled') {
+            $validPaymentMethods = ['cash', 'qris', 'debit', 'credit', 'other'];
+            if (is_null($this->payment_method) || $this->payment_method === '' || 
+                !in_array($this->payment_method, $validPaymentMethods)) {
+                throw new \InvalidArgumentException("Payment method must be one of: " . implode(', ', $validPaymentMethods));
+            }
         }
     }
 

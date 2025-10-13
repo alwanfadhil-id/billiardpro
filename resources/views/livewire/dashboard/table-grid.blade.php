@@ -164,6 +164,100 @@
             </div>
         @endforeach
     </div>
+<!-- Modal for Available Table -->
+@if($showAvailableTableModal && $selectedTable)
+<div 
+    x-data="{ open: @entangle('showAvailableTableModal') }"
+    x-show="open"
+    x-cloak
+    class="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4"
+>
+    <!-- Overlay -->
+    <div 
+        x-show="open"
+        x-transition:enter="ease-out duration-200"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave="ease-in duration-150"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
+        class="fixed inset-0 bg-black bg-opacity-50 z-40"
+        @click.away="$wire.closeModal()"
+    ></div>
+
+    <!-- Modal Content -->
+    <div 
+        x-show="open" 
+        x-transition:enter="ease-out duration-200"
+        x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+        x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+        x-transition:leave="ease-in duration-150"
+        x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+        x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+        class="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden z-50 relative"
+        @click.stop
+    >
+        <!-- Header with green background -->
+        <div class="bg-green-600 text-white p-6">
+            <div class="flex justify-between items-center">
+                <h3 class="text-xl font-bold">Meja #{{ $selectedTable->name }}</h3>
+                <button 
+                    @click="$wire.closeModal()"
+                    class="text-white hover:text-gray-200"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="mt-2 flex items-center">
+                <div class="w-3 h-3 bg-green-300 rounded-full mr-2"></div>
+                <span class="text-sm font-medium">Tersedia</span>
+            </div>
+        </div>
+
+        <!-- Body -->
+        <div class="p-6" @click.stop>
+            <div class="space-y-4 mb-6">
+                <div class="flex justify-between border-b pb-2">
+                    <span class="text-gray-600">Nomor Meja:</span>
+                    <span class="font-medium">#{{ $selectedTable->name }}</span>
+                </div>
+                <div class="flex justify-between border-b pb-2">
+                    <span class="text-gray-600">Tarif per Jam:</span>
+                    <span class="font-medium">Rp {{ number_format($selectedTable->hourly_rate, 0, ',', '.') }}</span>
+                </div>
+                <div class="flex justify-between border-b pb-2">
+                    <span class="text-gray-600">Status:</span>
+                    <span class="font-medium text-green-600">{{ ucfirst($selectedTable->status) }}</span>
+                </div>
+            </div>
+
+            <div class="flex flex-col space-y-3">
+                <button 
+                    wire:click="startSession({{ $selectedTable->id }})"
+                    class="px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors"
+                >
+                    Mulai Sesi Baru
+                </button>
+                <button 
+                    wire:click="toggleEditForm"
+                    class="px-4 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 font-medium transition-colors"
+                >
+                    Edit Meja
+                </button>
+                <button 
+                    wire:click="closeModal"
+                    class="px-4 py-3 bg-gray-100 text-gray-800 rounded-lg hover:bg-gray-200 font-medium transition-colors"
+                >
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
+
 <!-- Modal for Table Details -->
 @if($showModal && $selectedTable)
 <div 
@@ -317,18 +411,31 @@
                             Tandai Sebagai Terpakai
                         </button>
                     @elseif($selectedTable->status === 'occupied')
-                        <button 
-                            wire:click="markAsAvailable({{ $selectedTable->id }})"
-                            class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
-                        >
-                            Tandai Sebagai Tersedia
-                        </button>
-                        <button 
-                            wire:click="startSession({{ $selectedTable->id }})"
-                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                        >
-                            Mulai Sesi Baru
-                        </button>
+                        <!-- Find ongoing transaction and provide option to continue or end session -->
+                        @php
+                            $ongoingTransaction = $selectedTable->transactions()->where('status', 'ongoing')->first();
+                        @endphp
+                        @if($ongoingTransaction)
+                            <button 
+                                wire:click="markAsAvailable({{ $selectedTable->id }})"
+                                class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                            >
+                                Selesaikan Sesi
+                            </button>
+                            <button 
+                                onclick="window.location.href='{{ route('transactions.add-items', ['transaction' => $ongoingTransaction->id]) }}'"
+                                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                            >
+                                Tambah Item ke Sesi
+                            </button>
+                        @else
+                            <button 
+                                wire:click="markAsAvailable({{ $selectedTable->id }})"
+                                class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                            >
+                                Tandai Sebagai Tersedia
+                            </button>
+                        @endif
                     @elseif($selectedTable->status === 'maintenance')
                         <button 
                             wire:click="markAsAvailable({{ $selectedTable->id }})"

@@ -12,6 +12,7 @@ class TableGrid extends Component
     public $filterStatus = 'all';
     public $selectedTable = null;
     public $showModal = false;
+    public $showAvailableTableModal = false; // New property for available table popup
     public $showEditForm = false; // Property to toggle between view and edit mode
     public $name;
     public $hourly_rate;
@@ -64,16 +65,24 @@ class TableGrid extends Component
 
     public function selectTable($tableId)
     {
-        $this->selectedTable = Table::with(['transactions' => function($query) {
+        $table = Table::with(['transactions' => function($query) {
             $query->where('status', 'ongoing')->latest();
         }])->findOrFail($tableId);
+        
+        $this->selectedTable = $table;
         
         // Initialize form fields with current table values
         $this->name = $this->selectedTable->name;
         $this->hourly_rate = $this->selectedTable->hourly_rate;
         $this->status = $this->selectedTable->status;
         
-        $this->showModal = true;
+        // Check if the table is available to show the special modal
+        if ($table->status === 'available') {
+            $this->showAvailableTableModal = true;
+        } else {
+            $this->showModal = true;
+        }
+        
         $this->showEditForm = false; // Start with view mode
     }
 
@@ -86,6 +95,7 @@ class TableGrid extends Component
         }
 
         $this->showModal = false;
+        $this->showAvailableTableModal = false;
         $this->showEditForm = false;
         $this->selectedTable = null;
         $this->name = null;
@@ -102,8 +112,23 @@ class TableGrid extends Component
             return;
         }
 
-        // Redirect ke halaman mulai sesi (atau buka modal)
-        return redirect()->route('transactions.start', ['table' => $tableId]);
+        // Create a new transaction to track the session
+        $transaction = Transaction::create([
+            'table_id' => $table->id,
+            'user_id' => auth()->id(),
+            'started_at' => now(),
+            'status' => 'ongoing',
+            'total' => 0, // Will be calculated at the end
+        ]);
+
+        // Update table status to occupied
+        $table->update(['status' => 'occupied']);
+        
+        // Dispatch event to update table status across components
+        $this->dispatch('tableStatusUpdated');
+        
+        // Redirect to the transaction page to continue the session
+        return redirect()->route('transactions.add-items', ['transaction' => $transaction->id]);
     }
     
     public function markAsOccupied($tableId)
@@ -125,6 +150,7 @@ class TableGrid extends Component
             'user_id' => auth()->id(),
             'started_at' => now(),
             'status' => 'ongoing',
+            'total' => 0, // Will be calculated at the end
         ]);
         
         $this->dispatch('alert', type: 'success', message: 'Status meja telah diubah menjadi terpakai.');
@@ -134,13 +160,25 @@ class TableGrid extends Component
     {
         $table = Table::findOrFail($tableId);
         
-        // Update any ongoing transactions to completed
+        // Update any ongoing transactions - calculate duration and total, but don't complete the payment yet
         $ongoingTransaction = $table->transactions()->where('status', 'ongoing')->first();
         if ($ongoingTransaction) {
+            // Calculate duration and total cost for the transaction
+            $duration = now()->diffInMinutes($ongoingTransaction->started_at);
+            $ratePerHour = $table->hourly_rate;
+            $ratePerMinute = $ratePerHour / 60;
+            $total = $duration * $ratePerMinute;
+            
+            // Update transaction with end time and calculated total, but keep status as ongoing
+            // Payment and status change to 'completed' will happen on payment page
             $ongoingTransaction->update([
                 'ended_at' => now(),
-                'status' => 'completed'
+                'duration_minutes' => $duration,
+                'total' => $total
             ]);
+            
+            // Now redirect to payment page to complete the transaction
+            return redirect()->route('transactions.payment', ['transaction' => $ongoingTransaction->id]);
         }
         
         $table->update(['status' => 'available']);
@@ -179,6 +217,12 @@ class TableGrid extends Component
             $this->name = $this->selectedTable->name;
             $this->hourly_rate = $this->selectedTable->hourly_rate;
             $this->status = $this->selectedTable->status;
+            
+            // If the table was available and we're going back to view mode, keep the available table modal
+            if ($this->selectedTable->status === 'available') {
+                $this->showAvailableTableModal = true;
+                $this->showModal = false;
+            }
         }
     }
     
@@ -198,6 +242,16 @@ class TableGrid extends Component
         
         $this->dispatch('tableStatusUpdated');
         $this->showEditForm = false;
+        
+        // After updating, show the appropriate modal based on status
+        if ($this->selectedTable->status === 'available') {
+            $this->showAvailableTableModal = true;
+            $this->showModal = false;
+        } else {
+            $this->showModal = true;
+            $this->showAvailableTableModal = false;
+        }
+        
         $this->dispatch('alert', type: 'success', message: 'Data meja berhasil diperbarui.');
     }
     
