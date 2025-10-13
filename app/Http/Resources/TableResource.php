@@ -19,8 +19,11 @@ class TableResource extends JsonResource
             'name' => $this->name,
             'hourly_rate' => $this->hourly_rate,
             'status' => $this->status,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            'is_available' => $this->isAvailable(),
+            'is_occupied' => $this->isOccupied(),
+            'is_maintenance' => $this->isMaintenance(),
+            'created_at' => $this->created_at?->format('Y-m-d H:i:s'),
+            'updated_at' => $this->updated_at?->format('Y-m-d H:i:s'),
         ];
     }
 }

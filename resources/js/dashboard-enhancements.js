@@ -424,10 +424,52 @@ class DashboardEnhancements {
      * Announce table status changes to screen readers
      */
     announceTableChanges() {
+        let debounceTimer = null;
+        
         const observer = new MutationObserver((mutations) => {
-            mutations.forEach((mutation) => {
-                if (mutation.type === 'childList' || mutation.type === 'attributes') {
-                    const tableCards = document.querySelectorAll('.table-card, [class*="bg-gradient-to-br"]');
+            // Debounce the callback to prevent excessive announcements
+            if (debounceTimer) {
+                clearTimeout(debounceTimer);
+            }
+            
+            debounceTimer = setTimeout(() => {
+                // Only process the last set of mutations after debounce
+                let shouldAnnounce = false;
+                
+                for (const mutation of mutations) {
+                    if (mutation.type === 'childList' || mutation.type === 'attributes') {
+                        // Check if the mutation affects table-related elements
+                        if (mutation.target.classList && 
+                            (mutation.target.classList.contains('table-card') || 
+                             mutation.target.classList.contains('available') || 
+                             mutation.target.classList.contains('occupied') || 
+                             mutation.target.classList.contains('maintenance') ||
+                             mutation.target.className.includes('bg-gradient-to-br'))) {
+                            shouldAnnounce = true;
+                            break;
+                        }
+                        
+                        // Also check if target's children are table cards
+                        if (mutation.type === 'childList' && (mutation.addedNodes.length > 0 || mutation.removedNodes.length > 0)) {
+                            for (const node of [...mutation.addedNodes, ...mutation.removedNodes]) {
+                                if (node.classList) {
+                                    if (node.classList.contains('table-card') || 
+                                        node.classList.contains('available') || 
+                                        node.classList.contains('occupied') || 
+                                        node.classList.contains('maintenance') ||
+                                        node.className.includes('bg-gradient-to-br')) {
+                                        shouldAnnounce = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                    if (shouldAnnounce) break;
+                }
+                
+                if (shouldAnnounce) {
                     const availableCount = document.querySelectorAll('[class*="from-green"], .available').length;
                     const occupiedCount = document.querySelectorAll('[class*="from-red"], .occupied').length;
                     const maintenanceCount = document.querySelectorAll('[class*="from-gray"], .maintenance').length;
@@ -435,7 +477,7 @@ class DashboardEnhancements {
                     const announcement = `Table status updated. Available: ${availableCount}, Occupied: ${occupiedCount}, Maintenance: ${maintenanceCount}`;
                     this.announceToScreenReader(announcement);
                 }
-            });
+            }, 500); // 500ms debounce
         });
 
         observer.observe(document.body, {
@@ -444,6 +486,10 @@ class DashboardEnhancements {
             attributes: true,
             attributeFilter: ['class']
         });
+        
+        // Store references for cleanup
+        this.tableStatusObserver = observer;
+        this.debounceTimer = debounceTimer;
     }
 
     /**
@@ -530,7 +576,7 @@ class DashboardEnhancements {
      * Add loading indicators
      */
     addLoadingIndicators() {
-        const loadingElements = document.querySelectorAll('[wire:loading]');
+        const loadingElements = document.querySelectorAll('[wire\\:loading]');
 
         loadingElements.forEach(element => {
             element.addEventListener('loading', () => {
@@ -752,11 +798,36 @@ class DashboardEnhancements {
             this.announceToScreenReader('Touch interaction recommended for this view');
         }
     }
+
+    /**
+     * Clean up resources and disconnect observers
+     */
+    destroy() {
+        if (this.tableStatusObserver) {
+            this.tableStatusObserver.disconnect();
+            this.tableStatusObserver = null;
+        }
+        
+        if (this.debounceTimer) {
+            clearTimeout(this.debounceTimer);
+            this.debounceTimer = null;
+        }
+    }
 }
 
 // Initialize dashboard enhancements when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    new DashboardEnhancements();
+    const dashboardEnhancements = new DashboardEnhancements();
+    
+    // Store reference for cleanup on page unload
+    window.dashboardEnhancements = dashboardEnhancements;
+    
+    // Clean up on page unload
+    window.addEventListener('beforeunload', () => {
+        if (window.dashboardEnhancements && typeof window.dashboardEnhancements.destroy === 'function') {
+            window.dashboardEnhancements.destroy();
+        }
+    });
 });
 
 // Export for potential use in other scripts
