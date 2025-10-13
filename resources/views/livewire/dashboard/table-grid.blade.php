@@ -4,7 +4,9 @@
         <div class="flex justify-between items-center">
             <div>
                 <h2 class="text-sm opacity-80">Waktu Sekarang</h2>
-                <div id="current-time" class="text-2xl font-semibold">{{ now()->format('H:i:s') }}</div>
+                <div class="text-2xl font-semibold" wire:poll.1000ms>
+                    {{ now()->format('H:i:s') }}
+                </div>
                 <div class="text-xs opacity-80">{{ now()->translatedFormat('l, j F Y') }}</div>
             </div>
             <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 opacity-80" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -144,7 +146,6 @@
                     'maintenance' => 'bg-gray-600 text-white',
                     default => 'bg-gray-500 text-white'
                 };
-                $isClickable = true; // All tables can be clicked to show modal
             @endphp
 
             <div
@@ -163,206 +164,189 @@
             </div>
         @endforeach
     </div>
-
-    <!-- Modal for Table Details -->
-    @if($showModal && $selectedTable)
+<!-- Modal for Table Details -->
+@if($showModal && $selectedTable)
+<div 
+    x-data="{ open: @entangle('showModal') }"
+    x-show="open"
+    x-cloak
+    class="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4"
+>
+    <!-- Overlay -->
     <div 
-        x-data="{ open: @entangle('showModal') }"
         x-show="open"
-        x-cloak
-        @keydown.escape.window="open = false"
-        class="fixed inset-0 z-50 overflow-y-auto"
+        x-transition:enter="ease-out duration-200"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave="ease-in duration-150"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
+        class="fixed inset-0 bg-black bg-opacity-50 z-40"
+        @click.away="$wire.showEditForm ? $wire.toggleEditForm() : $wire.closeModal()"
+    ></div>
+
+    <!-- Modal Content -->
+    <div 
+        x-show="open" 
+        x-transition:enter="ease-out duration-200"
+        x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+        x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+        x-transition:leave="ease-in duration-150"
+        x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+        x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+        class="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto z-50 relative"
+        @click.stop
     >
-        <div 
-            x-show="open"
-            x-transition:enter="ease-out duration-200"
-            x-transition:enter-start="opacity-0"
-            x-transition:enter-end="opacity-100"
-            x-transition:leave="ease-in duration-150"
-            x-transition:leave-start="opacity-100"
-            x-transition:leave-end="opacity-0"
-            class="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
-            @click="open = false"
-        ></div>
-        <div 
-            x-show="open" 
-            x-transition:enter="ease-out duration-200"
-            x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-            x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
-            x-transition:leave="ease-in duration-150"
-            x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
-            x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-            class="flex items-center justify-center min-h-screen p-4"
-        >
-            <div 
-                class="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto"
-                @click.outside="open = false"
+        <!-- Header -->
+        <div class="flex justify-between items-center p-6 border-b border-gray-200">
+            <h3 class="text-xl font-bold">
+                @if($showEditForm)
+                    Edit Meja #{{ $selectedTable->name }}
+                @else
+                    Detail Meja #{{ $selectedTable->name }}
+                @endif
+            </h3>
+            <button 
+                @click="$wire.showEditForm ? $wire.toggleEditForm() : $wire.closeModal()"
+                class="text-gray-500 hover:text-gray-700"
             >
-                <!-- Modal Header -->
-                <div class="flex justify-between items-center p-6 border-b border-gray-200">
-                    <h3 class="text-xl font-bold">Detail Meja #{{ $selectedTable->name }}</h3>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Body -->
+        <div class="p-6" @click.stop>
+            @if($showEditForm)
+                <!-- Edit Form -->
+                <div class="space-y-4 mb-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nomor Meja</label>
+                        <input 
+                            wire:model="name"
+                            type="text" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900"
+                            autofocus
+                        />
+                        @error('name') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Tarif per Jam (Rp)</label>
+                        <input 
+                            wire:model="hourly_rate"
+                            type="number" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900"
+                        />
+                        @error('hourly_rate') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                        <select
+                            wire:model="status"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900"
+                        >
+                            <option value="available">Tersedia</option>
+                            <option value="occupied">Terpakai</option>
+                            <option value="maintenance">Maintenance</option>
+                        </select>
+                        @error('status') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex flex-col space-y-3">
                     <button 
-                        @click="open = false" 
-                        class="text-gray-500 hover:text-gray-700"
+                        wire:click="updateTable"
+                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                     >
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
+                        Simpan Perubahan
+                    </button>
+                    <button 
+                        wire:click="toggleEditForm"
+                        class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300"
+                    >
+                        Batal
                     </button>
                 </div>
-                
-                <!-- Modal Body -->
-                <div class="p-6">
-                    <!-- Status Indicator -->
-                    <div class="flex items-center mb-6">
-                        <div class="w-4 h-4 rounded-full 
-                            @if($selectedTable->status === 'available') bg-green-500
-                            @elseif($selectedTable->status === 'occupied') bg-red-500
-                            @else bg-yellow-500 @endif 
-                            mr-2"></div>
-                        <span class="font-semibold capitalize text-lg">{{ $selectedTable->status }}</span>
+            @else
+                <!-- View Mode -->
+                <div class="flex items-center mb-6">
+                    <div class="w-4 h-4 rounded-full 
+                        @if($selectedTable->status === 'available') bg-green-500
+                        @elseif($selectedTable->status === 'occupied') bg-red-500
+                        @else bg-gray-500 @endif 
+                        mr-2"></div>
+                    <span class="font-semibold capitalize text-lg">{{ $selectedTable->status }}</span>
+                </div>
+
+                <div class="space-y-4 mb-6">
+                    <div class="flex justify-between border-b pb-2">
+                        <span class="text-gray-600">Nomor Meja:</span>
+                        <span class="font-medium">#{{ $selectedTable->name }}</span>
                     </div>
-                    
-                    <!-- Table Details -->
-                    <div class="space-y-4 mb-6">
-                        <div class="flex justify-between border-b pb-2">
-                            <span class="text-gray-600">Nomor Meja:</span>
-                            <span class="font-medium">#{{ $selectedTable->name }}</span>
-                        </div>
-                        
-                        <div class="flex justify-between border-b pb-2">
-                            <span class="text-gray-600">Tarif per Jam:</span>
-                            <span class="font-medium">Rp {{ number_format($selectedTable->hourly_rate, 0, ',', '.') }}</span>
-                        </div>
-                        
-                        <!-- Status-specific details -->
-                        @if($selectedTable->status === 'available')
-                            <div class="flex justify-between border-b pb-2">
-                                <span class="text-gray-600">Status:</span>
-                                <span class="font-medium text-green-600">Tersedia</span>
-                            </div>
-                            <div class="flex justify-between border-b pb-2">
-                                <span class="text-gray-600">Terakhir Dibersihkan:</span>
-                                <span class="font-medium">{{ $selectedTable->updated_at->format('d/m/Y H:i') }}</span>
-                            </div>
-                            
-                        @elseif($selectedTable->status === 'occupied')
-                            <div class="flex justify-between border-b pb-2">
-                                <span class="text-gray-600">Status:</span>
-                                <span class="font-medium text-red-600">Terpakai</span>
-                            </div>
-                            @php
-                                $ongoingTransaction = $selectedTable->transactions()->where('status', 'ongoing')->first();
-                            @endphp
-                            @if($ongoingTransaction)
-                                <div class="flex justify-between border-b pb-2">
-                                    <span class="text-gray-600">Durasi:</span>
-                                    <span class="font-medium">{{ $ongoingTransaction->started_at->diffForHumans() }}</span>
-                                </div>
-                                <div class="flex justify-between border-b pb-2">
-                                    <span class="text-gray-600">Waktu Mulai:</span>
-                                    <span class="font-medium">{{ $ongoingTransaction->started_at->format('d/m/Y H:i') }}</span>
-                                </div>
-                            @endif
-                            
-                        @elseif($selectedTable->status === 'maintenance')
-                            <div class="flex justify-between border-b pb-2">
-                                <span class="text-gray-600">Status:</span>
-                                <span class="font-medium text-yellow-600">Maintenance</span>
-                            </div>
-                            <div class="flex justify-between border-b pb-2">
-                                <span class="text-gray-600">Alasan:</span>
-                                <span class="font-medium">Cleaning in progress</span>
-                            </div>
-                            <div class="flex justify-between border-b pb-2">
-                                <span class="text-gray-600">Petugas:</span>
-                                <span class="font-medium">-</span>
-                            </div>
-                        @endif
+                    <div class="flex justify-between border-b pb-2">
+                        <span class="text-gray-600">Tarif per Jam:</span>
+                        <span class="font-medium">Rp {{ number_format($selectedTable->hourly_rate, 0, ',', '.') }}</span>
                     </div>
-                    
-                    <!-- Action Buttons -->
-                    <div class="flex flex-col space-y-3">
-                        @if($selectedTable->status === 'available')
-                            <button 
-                                wire:click="markAsOccupied({{ $selectedTable->id }})"
-                                class="btn btn-error text-white"
-                            >
-                                Tandai Sebagai Terpakai
-                            </button>
-                            
-                            <button 
-                                wire:click="startSession({{ $selectedTable->id }})"
-                                class="btn btn-primary text-white"
-                            >
-                                Mulai Sesi Baru
-                            </button>
-                        @elseif($selectedTable->status === 'occupied')
-                            <button 
-                                wire:click="markAsAvailable({{ $selectedTable->id }})"
-                                class="btn btn-success text-white"
-                            >
-                                Tandai Sebagai Tersedia
-                            </button>
-                            
-                            <button 
-                                class="btn btn-primary text-white"
-                                disabled
-                            >
-                                Lihat Order
-                            </button>
-                        @elseif($selectedTable->status === 'maintenance')
-                            <button 
-                                wire:click="markAsAvailable({{ $selectedTable->id }})"
-                                class="btn btn-success text-white"
-                            >
-                                Tandai Sebagai Tersedia
-                            </button>
-                            
-                            <button 
-                                class="btn btn-warning text-white"
-                                disabled
-                            >
-                                Lihat Log Maintenance
-                            </button>
-                        @endif
-                        
-                        <button 
-                            @click="open = false"
-                            class="btn btn-ghost"
-                        >
-                            Tutup
-                        </button>
+                    <div class="flex justify-between border-b pb-2">
+                        <span class="text-gray-600">Status:</span>
+                        <span class="font-medium">{{ ucfirst($selectedTable->status) }}</span>
+                    </div>
+                    <div class="flex justify-between border-b pb-2">
+                        <span class="text-gray-600">Catatan:</span>
+                        <span class="font-medium">Sedang dalam perbaikan</span>
                     </div>
                 </div>
-            </div>
+
+                <div class="flex flex-col space-y-3">
+                    <button 
+                        wire:click="toggleEditForm"
+                        class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300"
+                    >
+                        Edit Meja
+                    </button>
+
+                    @if($selectedTable->status === 'available')
+                        <button 
+                            wire:click="markAsOccupied({{ $selectedTable->id }})"
+                            class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                        >
+                            Tandai Sebagai Terpakai
+                        </button>
+                        <button 
+                            wire:click="startSession({{ $selectedTable->id }})"
+                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                        >
+                            Mulai Sesi Baru
+                        </button>
+                    @elseif($selectedTable->status === 'occupied')
+                        <button 
+                            wire:click="markAsAvailable({{ $selectedTable->id }})"
+                            class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                        >
+                            Tandai Sebagai Tersedia
+                        </button>
+                    @elseif($selectedTable->status === 'maintenance')
+                        <button 
+                            wire:click="markAsAvailable({{ $selectedTable->id }})"
+                            class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                        >
+                            Tandai Sebagai Tersedia
+                        </button>
+                    @endif
+
+                    <button 
+                        wire:click="closeModal"
+                        class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300"
+                    >
+                        Tutup
+                    </button>
+                </div>
+            @endif
         </div>
     </div>
-    @endif
 </div>
-
-@push('scripts')
-<script>
-    // Update waktu real-time
-    function updateTime() {
-        const now = new Date();
-        const timeString = now.toLocaleTimeString('id-ID', { hour12: false });
-        document.getElementById('current-time').textContent = timeString;
-    }
-    setInterval(updateTime, 1000);
-    
-    // Real-time updates using API
-    function fetchTableStatuses() {
-        fetch('/api/tables/statuses')
-            .then(response => response.json())
-            .then(data => {
-                // Handle real-time updates if needed
-                // This could trigger Livewire events to update specific parts of the UI
-            })
-            .catch(error => console.error('Error fetching table statuses:', error));
-    }
-    
-    // Update periodically every 30 seconds
-    setInterval(fetchTableStatuses, 30000);
-</script>
-@endpush
+@endif
