@@ -1,85 +1,254 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Products') }}
-        </h2>
-    </x-slot>
-
-    <div class="py-6">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Daftar Produk</h2>
-                    <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
-                        Tambah Produk
+<div class="py-6">
+    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Daftar Produk</h2>
+                <button 
+                    wire:click="create"
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg"
+                >
+                    Tambah Produk
+                </button>
+            </div>
+            
+            <!-- Search and Filter -->
+            <div class="mb-6 flex flex-col md:flex-row gap-4">
+                <input 
+                    wire:model.live="search"
+                    type="text" 
+                    placeholder="Cari nama produk..." 
+                    class="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                />
+                <select 
+                    wire:model.live="filterCategory"
+                    class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                >
+                    <option value="all">Semua Kategori</option>
+                    <option value="minuman">Minuman</option>
+                    <option value="makanan">Makanan Ringan</option>
+                    <option value="lainnya">Lain-lain</option>
+                </select>
+            </div>
+            
+            <!-- Create Form -->
+            @if($showCreateForm)
+            <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 mb-6">
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Tambah Produk Baru</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nama Produk</label>
+                        <input 
+                            wire:model="name"
+                            type="text" 
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-600 text-gray-900 dark:text-white"
+                        />
+                        @error('name') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Harga (Rp)</label>
+                        <input 
+                            wire:model="price"
+                            type="number" 
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-600 text-gray-900 dark:text-white"
+                        />
+                        @error('price') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Kategori</label>
+                        <select
+                            wire:model="category"
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-600 text-gray-900 dark:text-white"
+                        >
+                            <option value="minuman">Minuman</option>
+                            <option value="makanan">Makanan Ringan</option>
+                            <option value="lainnya">Lain-lain</option>
+                        </select>
+                        @error('category') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Stok Tersedia</label>
+                        <input 
+                            wire:model="stock_quantity"
+                            type="number" 
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-600 text-gray-900 dark:text-white"
+                        />
+                        @error('stock_quantity') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Minimal Stok</label>
+                        <input 
+                            wire:model="min_stock_level"
+                            type="number" 
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-600 text-gray-900 dark:text-white"
+                        />
+                        @error('min_stock_level') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                    </div>
+                </div>
+                
+                <div class="flex justify-end gap-2 mt-4">
+                    <button 
+                        wire:click="cancel"
+                        class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300"
+                    >
+                        Batal
+                    </button>
+                    <button 
+                        wire:click="store"
+                        class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
+                    >
+                        Simpan
                     </button>
                 </div>
-                
-                <!-- Search and Filter -->
-                <div class="mb-6 flex flex-col md:flex-row gap-4">
-                    <input 
-                        type="text" 
-                        placeholder="Cari produk..." 
-                        class="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                    />
-                    <select class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
-                        <option value="">Semua Kategori</option>
-                        <option value="minuman">Minuman</option>
-                        <option value="makanan">Makanan Ringan</option>
-                    </select>
+            </div>
+            @endif
+            
+            <!-- Edit Form -->
+            @if($editingProductId)
+            <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 mb-6">
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Edit Produk</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nama Produk</label>
+                        <input 
+                            wire:model="name"
+                            type="text" 
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-600 text-gray-900 dark:text-white"
+                        />
+                        @error('name') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Harga (Rp)</label>
+                        <input 
+                            wire:model="price"
+                            type="number" 
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-600 text-gray-900 dark:text-white"
+                        />
+                        @error('price') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Kategori</label>
+                        <select
+                            wire:model="category"
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-600 text-gray-900 dark:text-white"
+                        >
+                            <option value="minuman">Minuman</option>
+                            <option value="makanan">Makanan Ringan</option>
+                            <option value="lainnya">Lain-lain</option>
+                        </select>
+                        @error('category') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                    </div>
                 </div>
                 
-                <!-- Products Grid -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 shadow">
-                        <div class="flex justify-between items-start mb-2">
-                            <h3 class="font-semibold text-gray-800 dark:text-white">Es Teh</h3>
-                            <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">Rp 5.000</span>
-                        </div>
-                        <p class="text-sm text-gray-600 dark:text-gray-300 mb-3">Minuman segar</p>
-                        <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400">
-                            <span>Minuman</span>
-                            <span>Stok: 50</span>
-                        </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Stok Tersedia</label>
+                        <input 
+                            wire:model="stock_quantity"
+                            type="number" 
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-600 text-gray-900 dark:text-white"
+                        />
+                        @error('stock_quantity') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                     </div>
                     
-                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 shadow">
-                        <div class="flex justify-between items-start mb-2">
-                            <h3 class="font-semibold text-gray-800 dark:text-white">Kopi Susu</h3>
-                            <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">Rp 8.000</span>
-                        </div>
-                        <p class="text-sm text-gray-600 dark:text-gray-300 mb-3">Kopi nikmat hangat</p>
-                        <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400">
-                            <span>Minuman</span>
-                            <span>Stok: 30</span>
-                        </div>
-                    </div>
-                    
-                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 shadow">
-                        <div class="flex justify-between items-start mb-2">
-                            <h3 class="font-semibold text-gray-800 dark:text-white">Kacang Goreng</h3>
-                            <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">Rp 10.000</span>
-                        </div>
-                        <p class="text-sm text-gray-600 dark:text-gray-300 mb-3">Camilan renyah</p>
-                        <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400">
-                            <span>Makanan</span>
-                            <span>Stok: 20</span>
-                        </div>
-                    </div>
-                    
-                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 shadow">
-                        <div class="flex justify-between items-start mb-2">
-                            <h3 class="font-semibold text-gray-800 dark:text-white">Rokok</h3>
-                            <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">Rp 15.000</span>
-                        </div>
-                        <p class="text-sm text-gray-600 dark:text-gray-300 mb-3">Stok barang</p>
-                        <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400">
-                            <span>Lain-lain</span>
-                            <span>Stok: 15</span>
-                        </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Minimal Stok</label>
+                        <input 
+                            wire:model="min_stock_level"
+                            type="number" 
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-600 text-gray-900 dark:text-white"
+                        />
+                        @error('min_stock_level') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                     </div>
                 </div>
+                
+                <div class="flex justify-end gap-2 mt-4">
+                    <button 
+                        wire:click="cancel"
+                        class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300"
+                    >
+                        Batal
+                    </button>
+                    <button 
+                        wire:click="update"
+                        class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
+                    >
+                        Update
+                    </button>
+                </div>
+            </div>
+            @endif
+            
+            <!-- Products List -->
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead class="bg-gray-50 dark:bg-gray-700">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Nama</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Harga</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Kategori</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Stok</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                        @forelse($products as $product)
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900 dark:text-white">{{ $product->name }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900 dark:text-white">Rp {{ number_format($product->price, 0, ',', '.') }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                    @if($product->category === 'minuman') bg-blue-100 text-blue-800 @endif
+                                    @if($product->category === 'makanan') bg-green-100 text-green-800 @endif
+                                    @if($product->category === 'lainnya') bg-gray-100 text-gray-800 @endif
+                                ">
+                                    {{ ucfirst($product->category) }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900 dark:text-white">
+                                    {{ $product->stock_quantity }}
+                                    @if($product->isLowStock())
+                                        <span class="ml-1 text-xs text-red-500">(Low Stock)</span>
+                                    @endif
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <button 
+                                    wire:click="edit({{ $product->id }})"
+                                    class="text-blue-600 hover:text-blue-900 mr-2"
+                                >
+                                    Edit
+                                </button>
+                                <button 
+                                    wire:click="delete({{ $product->id }})"
+                                    class="text-red-600 hover:text-red-900"
+                                >
+                                    Hapus
+                                </button>
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="5" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
+                                Tidak ada produk ditemukan
+                            </td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
-</x-app-layout>
+</div>
