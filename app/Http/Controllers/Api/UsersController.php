@@ -14,12 +14,29 @@ class UsersController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $users = User::all();
+        $perPage = $request->query('per_page', 15);
+        $users = User::paginate($perPage);
+        
         return response()->json([
             'success' => true,
-            'data' => UserResource::collection($users)
+            'data' => UserResource::collection($users),
+            'links' => [
+                'first' => $users->url(1),
+                'last' => $users->url($users->lastPage()),
+                'prev' => $users->previousPageUrl(),
+                'next' => $users->nextPageUrl(),
+            ],
+            'meta' => [
+                'current_page' => $users->currentPage(),
+                'from' => $users->firstItem(),
+                'last_page' => $users->lastPage(),
+                'path' => $users->path(),
+                'per_page' => $users->perPage(),
+                'to' => $users->lastItem(),
+                'total' => $users->total(),
+            ],
         ]);
     }
 

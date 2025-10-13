@@ -13,12 +13,29 @@ class TablesController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $tables = Table::all();
+        $perPage = $request->query('per_page', 15);
+        $tables = Table::paginate($perPage);
+        
         return response()->json([
             'success' => true,
-            'data' => TableResource::collection($tables)
+            'data' => TableResource::collection($tables),
+            'links' => [
+                'first' => $tables->url(1),
+                'last' => $tables->url($tables->lastPage()),
+                'prev' => $tables->previousPageUrl(),
+                'next' => $tables->nextPageUrl(),
+            ],
+            'meta' => [
+                'current_page' => $tables->currentPage(),
+                'from' => $tables->firstItem(),
+                'last_page' => $tables->lastPage(),
+                'path' => $tables->path(),
+                'per_page' => $tables->perPage(),
+                'to' => $tables->lastItem(),
+                'total' => $tables->total(),
+            ],
         ]);
     }
 

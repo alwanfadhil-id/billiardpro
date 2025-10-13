@@ -17,12 +17,30 @@ class TransactionsController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $transactions = Transaction::with(['table', 'user', 'items.product'])->get();
+        $perPage = $request->query('per_page', 15);
+        $transactions = Transaction::with(['table', 'user', 'items.product'])
+            ->paginate($perPage);
+        
         return response()->json([
             'success' => true,
-            'data' => TransactionResource::collection($transactions)
+            'data' => TransactionResource::collection($transactions),
+            'links' => [
+                'first' => $transactions->url(1),
+                'last' => $transactions->url($transactions->lastPage()),
+                'prev' => $transactions->previousPageUrl(),
+                'next' => $transactions->nextPageUrl(),
+            ],
+            'meta' => [
+                'current_page' => $transactions->currentPage(),
+                'from' => $transactions->firstItem(),
+                'last_page' => $transactions->lastPage(),
+                'path' => $transactions->path(),
+                'per_page' => $transactions->perPage(),
+                'to' => $transactions->lastItem(),
+                'total' => $transactions->total(),
+            ],
         ]);
     }
 
