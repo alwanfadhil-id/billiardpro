@@ -60,6 +60,17 @@ class Table extends Model
     }
 
     /**
+     * Validate the type attribute.
+     */
+    public function validateType()
+    {
+        $validTypes = ['biasa', 'premium', 'vip'];
+        if (!in_array($this->type, $validTypes)) {
+            throw new \InvalidArgumentException("Type must be one of: " . implode(', ', $validTypes));
+        }
+    }
+
+    /**
      * Validate the status attribute.
      */
     public function validateStatus()

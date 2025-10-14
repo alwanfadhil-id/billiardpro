@@ -197,7 +197,7 @@
         x-transition:leave-start="opacity-100"
         x-transition:leave-end="opacity-0"
         class="fixed inset-0 bg-black bg-opacity-50 z-40"
-        @click.away="$wire.closeModal()"
+        @click.away="$wire.showEditForm ? $wire.toggleEditForm() : $wire.closeModal()"
     ></div>
 
     <!-- Modal Content -->
@@ -212,67 +212,151 @@
         class="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden z-50 relative"
         @click.stop
     >
-        <!-- Header with green background -->
-        <div class="bg-green-600 text-white p-6">
-            <div class="flex justify-between items-center">
-                <h3 class="text-xl font-bold">Meja #{{ $selectedTable->name }}</h3>
-                <button 
-                    @click="$wire.closeModal()"
-                    class="text-white hover:text-gray-200"
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
+        @if($showEditForm)
+            <!-- Edit Form Header -->
+            <div class="bg-blue-600 text-white p-6">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xl font-bold">Edit Meja #{{ $selectedTable->name }}</h3>
+                    <button 
+                        @click="$wire.toggleEditForm()"
+                        class="text-white hover:text-gray-200"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
             </div>
-            <div class="mt-2 flex items-center">
-                <div class="w-3 h-3 bg-green-300 rounded-full mr-2"></div>
-                <span class="text-sm font-medium">Tersedia</span>
-            </div>
-        </div>
+            
+            <!-- Edit Form Body -->
+            <div class="p-6" @click.stop>
+                <div class="space-y-4 mb-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nomor Meja</label>
+                        <input 
+                            wire:model="name"
+                            type="text" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900"
+                            autofocus
+                        />
+                        @error('name') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Jenis Meja</label>
+                        <select
+                            wire:model="type"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900"
+                        >
+                            <option value="biasa">Biasa</option>
+                            <option value="premium">Premium</option>
+                            <option value="vip">VIP</option>
+                        </select>
+                        @error('type') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Tarif per Jam (Rp)</label>
+                        <input 
+                            wire:model="hourly_rate"
+                            type="number" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900"
+                        />
+                        @error('hourly_rate') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                        <select
+                            wire:model="status"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900"
+                        >
+                            <option value="available">Tersedia</option>
+                            <option value="occupied">Terpakai</option>
+                            <option value="maintenance">Maintenance</option>
+                        </select>
+                        @error('status') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                    </div>
+                </div>
 
-        <!-- Body -->
-        <div class="p-6" @click.stop>
-            <div class="space-y-4 mb-6">
-                <div class="flex justify-between border-b pb-2">
-                    <span class="text-gray-600">Nomor Meja:</span>
-                    <span class="font-medium">#{{ $selectedTable->name }}</span>
+                <div class="flex flex-col space-y-3">
+                    <button 
+                        wire:click="updateTable"
+                        class="px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors"
+                    >
+                        Simpan Perubahan
+                    </button>
+                    <button 
+                        wire:click="toggleEditForm"
+                        class="px-4 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 font-medium transition-colors"
+                    >
+                        Batal
+                    </button>
                 </div>
-                <div class="flex justify-between border-b pb-2">
-                    <span class="text-gray-600">Jenis Meja:</span>
-                    <span class="font-medium">{{ ucfirst($selectedTable->type) }}</span>
+            </div>
+        @else
+            <!-- Header with green background -->
+            <div class="bg-green-600 text-white p-6">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xl font-bold">Meja #{{ $selectedTable->name }}</h3>
+                    <button 
+                        @click="$wire.closeModal()"
+                        class="text-white hover:text-gray-200"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
                 </div>
-                <div class="flex justify-between border-b pb-2">
-                    <span class="text-gray-600">Tarif per Jam:</span>
-                    <span class="font-medium">Rp {{ number_format($selectedTable->hourly_rate, 0, ',', '.') }}</span>
-                </div>
-                <div class="flex justify-between border-b pb-2">
-                    <span class="text-gray-600">Status:</span>
-                    <span class="font-medium text-green-600">{{ ucfirst($selectedTable->status) }}</span>
+                <div class="mt-2 flex items-center">
+                    <div class="w-3 h-3 bg-green-300 rounded-full mr-2"></div>
+                    <span class="text-sm font-medium">Tersedia</span>
                 </div>
             </div>
 
-            <div class="flex flex-col space-y-3">
-                <button 
-                    wire:click="startSession({{ $selectedTable->id }})"
-                    class="px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors"
-                >
-                    Mulai Sesi Baru
-                </button>
-                <button 
-                    wire:click="toggleEditForm"
-                    class="px-4 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 font-medium transition-colors"
-                >
-                    Edit Meja
-                </button>
-                <button 
-                    wire:click="closeModal"
-                    class="px-4 py-3 bg-gray-100 text-gray-800 rounded-lg hover:bg-gray-200 font-medium transition-colors"
-                >
-                    Tutup
-                </button>
+            <!-- Body -->
+            <div class="p-6" @click.stop>
+                <div class="space-y-4 mb-6">
+                    <div class="flex justify-between border-b pb-2">
+                        <span class="text-gray-600">Nomor Meja:</span>
+                        <span class="font-medium">#{{ $selectedTable->name }}</span>
+                    </div>
+                    <div class="flex justify-between border-b pb-2">
+                        <span class="text-gray-600">Jenis Meja:</span>
+                        <span class="font-medium">{{ ucfirst($selectedTable->type) }}</span>
+                    </div>
+                    <div class="flex justify-between border-b pb-2">
+                        <span class="text-gray-600">Tarif per Jam:</span>
+                        <span class="font-medium">Rp {{ number_format($selectedTable->hourly_rate, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="flex justify-between border-b pb-2">
+                        <span class="text-gray-600">Status:</span>
+                        <span class="font-medium text-green-600">{{ ucfirst($selectedTable->status) }}</span>
+                    </div>
+                </div>
+
+                <div class="flex flex-col space-y-3">
+                    <button 
+                        wire:click="startSession({{ $selectedTable->id }})"
+                        class="px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors"
+                    >
+                        Mulai Sesi Baru
+                    </button>
+                    <button 
+                        wire:click="toggleEditForm"
+                        class="px-4 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 font-medium transition-colors"
+                    >
+                        Edit Meja
+                    </button>
+                    <button 
+                        wire:click="closeModal"
+                        class="px-4 py-3 bg-gray-100 text-gray-800 rounded-lg hover:bg-gray-200 font-medium transition-colors"
+                    >
+                        Tutup
+                    </button>
+                </div>
             </div>
-        </div>
+        @endif
     </div>
 </div>
 @endif

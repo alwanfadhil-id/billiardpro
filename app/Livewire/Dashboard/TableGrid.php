@@ -228,7 +228,14 @@ class TableGrid extends Component
             if ($this->selectedTable->status === 'available') {
                 $this->showAvailableTableModal = true;
                 $this->showModal = false;
+            } else {
+                $this->showModal = true;
+                $this->showAvailableTableModal = false;
             }
+        } else {
+            // Ketika masuk ke mode edit, selalu gunakan modal umum (showModal)
+            $this->showModal = true;
+            $this->showAvailableTableModal = false;
         }
     }
     
