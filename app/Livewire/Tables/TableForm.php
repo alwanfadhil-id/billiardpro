@@ -11,6 +11,7 @@ class TableForm extends Component
     public $search = '';
     public $filterStatus = 'all';
     public $name;
+    public $type = 'biasa';
     public $hourly_rate;
     public $status = 'available';
     public $editingTableId = null;
@@ -18,6 +19,7 @@ class TableForm extends Component
 
     protected $rules = [
         'name' => 'required|string|max:100',
+        'type' => 'required|in:biasa,premium,vip',
         'hourly_rate' => 'required|numeric|min:0',
         'status' => 'required|in:available,occupied,maintenance',
     ];
@@ -69,6 +71,7 @@ class TableForm extends Component
 
         Table::create([
             'name' => $this->name,
+            'type' => $this->type,
             'hourly_rate' => $this->hourly_rate,
             'status' => $this->status,
         ]);
@@ -83,6 +86,7 @@ class TableForm extends Component
         $table = Table::findOrFail($id);
         $this->editingTableId = $id;
         $this->name = $table->name;
+        $this->type = $table->type;
         $this->hourly_rate = $table->hourly_rate;
         $this->status = $table->status;
     }
@@ -94,6 +98,7 @@ class TableForm extends Component
         $table = Table::findOrFail($this->editingTableId);
         $table->update([
             'name' => $this->name,
+            'type' => $this->type,
             'hourly_rate' => $this->hourly_rate,
             'status' => $this->status,
         ]);
@@ -118,6 +123,7 @@ class TableForm extends Component
     private function resetForm()
     {
         $this->name = '';
+        $this->type = 'biasa';
         $this->hourly_rate = '';
         $this->status = 'available';
         $this->editingTableId = null;

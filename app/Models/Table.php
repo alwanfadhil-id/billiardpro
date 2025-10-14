@@ -16,6 +16,7 @@ class Table extends Model
      */
     protected $fillable = [
         'name',
+        'type',
         'hourly_rate',
         'status',
     ];
@@ -37,11 +38,13 @@ class Table extends Model
     {
         static::creating(function ($table) {
             $table->validateRate();
+            $table->validateType();
             $table->validateStatus();
         });
 
         static::updating(function ($table) {
             $table->validateRate();
+            $table->validateType();
             $table->validateStatus();
         });
     }

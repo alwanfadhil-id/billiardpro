@@ -46,6 +46,19 @@
                     </div>
                     
                     <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Jenis Meja</label>
+                        <select
+                            wire:model="type"
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-600 text-gray-900 dark:text-white"
+                        >
+                            <option value="biasa">Biasa</option>
+                            <option value="premium">Premium</option>
+                            <option value="vip">VIP</option>
+                        </select>
+                        @error('type') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                    </div>
+                    
+                    <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tarif per Jam (Rp)</label>
                         <input 
                             wire:model="hourly_rate"
@@ -54,9 +67,11 @@
                         />
                         @error('hourly_rate') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                     </div>
-                    
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status Meja</label>
                         <select
                             wire:model="status"
                             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-600 text-gray-900 dark:text-white"
@@ -102,6 +117,19 @@
                     </div>
                     
                     <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Jenis Meja</label>
+                        <select
+                            wire:model="type"
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-600 text-gray-900 dark:text-white"
+                        >
+                            <option value="biasa">Biasa</option>
+                            <option value="premium">Premium</option>
+                            <option value="vip">VIP</option>
+                        </select>
+                        @error('type') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                    </div>
+                    
+                    <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tarif per Jam (Rp)</label>
                         <input 
                             wire:model="hourly_rate"
@@ -110,9 +138,11 @@
                         />
                         @error('hourly_rate') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
                     </div>
-                    
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Status Meja</label>
                         <select
                             wire:model="status"
                             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-600 text-gray-900 dark:text-white"
@@ -148,6 +178,7 @@
                     <thead class="bg-gray-50 dark:bg-gray-700">
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Nama</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Jenis</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Tarif per Jam</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
                             <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Aksi</th>
@@ -158,6 +189,15 @@
                         <tr>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm font-medium text-gray-900 dark:text-white">#{{ $table->name }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                    @if($table->type === 'biasa') bg-blue-100 text-blue-800 @endif
+                                    @if($table->type === 'premium') bg-purple-100 text-purple-800 @endif
+                                    @if($table->type === 'vip') bg-yellow-100 text-yellow-800 @endif
+                                ">
+                                    {{ ucfirst($table->type) }}
+                                </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm text-gray-900 dark:text-white">Rp {{ number_format($table->hourly_rate, 0, ',', '.') }}</div>
@@ -188,7 +228,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="4" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
+                            <td colspan="5" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
                                 Tidak ada meja ditemukan
                             </td>
                         </tr>

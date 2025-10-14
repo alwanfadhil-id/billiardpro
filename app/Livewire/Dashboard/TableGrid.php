@@ -15,6 +15,7 @@ class TableGrid extends Component
     public $showAvailableTableModal = false; // New property for available table popup
     public $showEditForm = false; // Property to toggle between view and edit mode
     public $name;
+    public $type;
     public $hourly_rate;
     public $status;
 
@@ -33,7 +34,9 @@ class TableGrid extends Component
             $query->where('status', $this->filterStatus);
         }
 
-        $tables = $query->orderBy('name')->get();
+        $tables = $query->with(['transactions' => function($q) {
+            $q->where('status', 'ongoing')->latest();
+        }])->orderBy('name')->get();
 
         // Statistik
         $todayStart = now()->startOfDay();
@@ -73,6 +76,7 @@ class TableGrid extends Component
         
         // Initialize form fields with current table values
         $this->name = $this->selectedTable->name;
+        $this->type = $this->selectedTable->type;
         $this->hourly_rate = $this->selectedTable->hourly_rate;
         $this->status = $this->selectedTable->status;
         
@@ -99,6 +103,7 @@ class TableGrid extends Component
         $this->showEditForm = false;
         $this->selectedTable = null;
         $this->name = null;
+        $this->type = null;
         $this->hourly_rate = null;
         $this->status = null;
     }
@@ -215,6 +220,7 @@ class TableGrid extends Component
         // Jika kembali ke mode view dari mode edit, kembalikan nilai-nilai asli
         if (!$this->showEditForm && $this->selectedTable) {
             $this->name = $this->selectedTable->name;
+            $this->type = $this->selectedTable->type;
             $this->hourly_rate = $this->selectedTable->hourly_rate;
             $this->status = $this->selectedTable->status;
             
@@ -230,12 +236,14 @@ class TableGrid extends Component
     {
         $this->validate([
             'name' => 'required|string|max:100',
+            'type' => 'required|in:biasa,premium,vip',
             'hourly_rate' => 'required|numeric|min:0',
             'status' => 'required|in:available,occupied,maintenance',
         ]);
         
         $this->selectedTable->update([
             'name' => $this->name,
+            'type' => $this->type,
             'hourly_rate' => $this->hourly_rate,
             'status' => $this->status,
         ]);
@@ -255,6 +263,32 @@ class TableGrid extends Component
         $this->dispatch('alert', type: 'success', message: 'Data meja berhasil diperbarui.');
     }
     
+    public function getDurationForTable($table)
+    {
+        $ongoingTransaction = $table->transactions->first();
+        
+        if ($ongoingTransaction) {
+            $startedAt = $ongoingTransaction->started_at;
+            $now = now();
+            $minutes = $startedAt->diffInMinutes($now);
+            
+            $hours = intdiv($minutes, 60);
+            $remainingMinutes = $minutes % 60;
+            
+            return [
+                'hours' => $hours,
+                'minutes' => $remainingMinutes,
+                'total_minutes' => $minutes
+            ];
+        }
+        
+        return [
+            'hours' => 0,
+            'minutes' => 0,
+            'total_minutes' => 0
+        ];
+    }
+
     // Method to support Livewire polling for real-time updates
     public function pollingRefresh()
     {

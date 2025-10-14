@@ -159,7 +159,22 @@
                     </span>
                 </div>
                 <div class="text-center">
-                    <p class="text-sm font-semibold">Rp {{ number_format($table->hourly_rate, 0, ',', '.') }}/jam</p>
+                    <span class="text-xs px-1.5 py-0.5 rounded
+                        @if($table->type === 'biasa') bg-blue-600 text-white @endif
+                        @if($table->type === 'premium') bg-purple-600 text-white @endif
+                        @if($table->type === 'vip') bg-yellow-600 text-white @endif
+                    ">
+                        {{ ucfirst($table->type) }}
+                    </span>
+                    <p class="text-sm font-semibold mt-1">Rp {{ number_format($table->hourly_rate, 0, ',', '.') }}/jam</p>
+                    @if($table->status === 'occupied')
+                        @php
+                            $duration = $this->getDurationForTable($table);
+                        @endphp
+                        <p class="text-xs mt-1">
+                            {{ $duration['hours'] }}h {{ $duration['minutes'] }}m
+                        </p>
+                    @endif
                 </div>
             </div>
         @endforeach
@@ -222,6 +237,10 @@
                 <div class="flex justify-between border-b pb-2">
                     <span class="text-gray-600">Nomor Meja:</span>
                     <span class="font-medium">#{{ $selectedTable->name }}</span>
+                </div>
+                <div class="flex justify-between border-b pb-2">
+                    <span class="text-gray-600">Jenis Meja:</span>
+                    <span class="font-medium">{{ ucfirst($selectedTable->type) }}</span>
                 </div>
                 <div class="flex justify-between border-b pb-2">
                     <span class="text-gray-600">Tarif per Jam:</span>
@@ -327,6 +346,19 @@
                     </div>
                     
                     <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Jenis Meja</label>
+                        <select
+                            wire:model="type"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900"
+                        >
+                            <option value="biasa">Biasa</option>
+                            <option value="premium">Premium</option>
+                            <option value="vip">VIP</option>
+                        </select>
+                        @error('type') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                    </div>
+                    
+                    <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Tarif per Jam (Rp)</label>
                         <input 
                             wire:model="hourly_rate"
@@ -380,6 +412,10 @@
                     <div class="flex justify-between border-b pb-2">
                         <span class="text-gray-600">Nomor Meja:</span>
                         <span class="font-medium">#{{ $selectedTable->name }}</span>
+                    </div>
+                    <div class="flex justify-between border-b pb-2">
+                        <span class="text-gray-600">Jenis Meja:</span>
+                        <span class="font-medium">{{ ucfirst($selectedTable->type) }}</span>
                     </div>
                     <div class="flex justify-between border-b pb-2">
                         <span class="text-gray-600">Tarif per Jam:</span>
