@@ -19,7 +19,7 @@ class ReceiptPrint extends Component
             $this->transaction = Transaction::with(['table', 'items.product', 'user'])->find($this->transactionId);
             if (!$this->transaction) {
                 session()->flash('error', 'Transaction not found.');
-                return redirect()->route('dashboard');
+                // Redirect will be handled in render method
             }
         }
     }
@@ -76,16 +76,23 @@ class ReceiptPrint extends Component
         // Receipt Info
         $printer->setJustification(Printer::JUSTIFY_LEFT);
         $printer->text("Receipt No: " . $this->transaction->id . "\n");
-        $printer->text("Date: " . $this->transaction->ended_at->format('d/m/Y') . "\n");
-        $printer->text("Time: " . $this->transaction->ended_at->format('H:i') . "\n");
+        // Use ended_at if available, otherwise use the time of transaction completion
+        $dateToShow = $this->transaction->ended_at ?? $this->transaction->updated_at ?? now();
+        $printer->text("Date: " . $dateToShow->format('d/m/Y') . "\n");
+        $printer->text("Time: " . $dateToShow->format('H:i') . "\n");
         $printer->text("Cashier: " . $this->transaction->user->name . "\n");
         $printer->text("Table: " . $this->transaction->table->name . "\n");
         $printer->feed();
 
         // Duration Info
-        $durationHours = ceil($this->transaction->started_at->diffInMinutes($this->transaction->ended_at) / 60);
+        if ($this->transaction->ended_at) {
+            $durationMinutes = $this->transaction->started_at->diffInMinutes($this->transaction->ended_at);
+        } else {
+            $durationMinutes = $this->transaction->started_at->diffInMinutes(now());
+        }
+        $durationHours = ceil($durationMinutes / 60);
         $printer->text("Start Time: " . $this->transaction->started_at->format('H:i') . "\n");
-        $printer->text("End Time: " . $this->transaction->ended_at->format('H:i') . "\n");
+        $printer->text("End Time: " . ($this->transaction->ended_at ? $this->transaction->ended_at->format('H:i') : now()->format('H:i')) . "\n");
         $printer->text("Duration (Rounded): " . $durationHours . " hour(s)\n");
         $printer->feed();
 
@@ -109,8 +116,8 @@ class ReceiptPrint extends Component
         $printer->text("Total: Rp " . number_format($this->transaction->total, 0, ',', '.') . "\n");
         $printer->setEmphasis(false);
         $printer->text("Payment: " . ucfirst($this->transaction->payment_method) . "\n");
-        $printer->text("Received: Rp " . number_format($this->transaction->cash_received, 0, ',', '.') . "\n");
-        $printer->text("Change: Rp " . number_format($this->transaction->change_amount, 0, ',', '.') . "\n");
+        $printer->text("Received: Rp " . number_format($this->transaction->cash_received ?? 0, 0, ',', '.') . "\n");
+        $printer->text("Change: Rp " . number_format($this->transaction->change_amount ?? 0, 0, ',', '.') . "\n");
         $printer->feed();
 
         // Footer
@@ -122,9 +129,14 @@ class ReceiptPrint extends Component
 
     public function render()
     {
+        if (!$this->transaction) {
+            // Redirect to dashboard if transaction not found
+            return redirect()->route('dashboard');
+        }
+        
         return view('livewire.transactions.receipt-print', [
-            'table' => $this->transaction?->table,
-            'items' => $this->transaction ? $this->transaction->items()->with('product')->get() : collect([])
+            'table' => $this->transaction->table,
+            'items' => $this->transaction->items()->with('product')->get()
         ]);
     }
 }

@@ -26,6 +26,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         
     Route::get('/transactions/payment/{transaction}', \App\Livewire\Transactions\PaymentProcess::class)
         ->name('transactions.payment');
+        
+    Route::get('/transactions/receipt/{transaction}', \App\Livewire\Transactions\ReceiptPrint::class)
+        ->name('transactions.receipt');
 
     // 🔹 LAPORAN HARIAN
     Route::get('/reports', \App\Livewire\Reports\DailyReport::class)
