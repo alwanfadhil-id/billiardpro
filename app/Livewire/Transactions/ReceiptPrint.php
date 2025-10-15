@@ -12,15 +12,24 @@ class ReceiptPrint extends Component
     public $transactionId;
     public $transaction;
 
-    public function mount($transactionId = null)
+    public function mount($transaction = null)
     {
-        $this->transactionId = $transactionId;
+        // Pastikan parameternya adalah ID (integer), bukan model langsung
+        if (is_object($transaction) && isset($transaction->id)) {
+            // Jika parameter yang diterima adalah model Transaction, ambil ID-nya
+            $this->transactionId = (int)$transaction->id;
+        } else {
+            // Jika parameter adalah ID (dari route), konversi ke integer
+            $this->transactionId = (int)$transaction;
+        }
+
         if ($this->transactionId) {
             $this->transaction = Transaction::with(['table', 'items.product', 'user'])->find($this->transactionId);
             if (!$this->transaction) {
                 session()->flash('error', 'Transaction not found.');
-                // Redirect will be handled in render method
             }
+        } else {
+            session()->flash('error', 'Invalid transaction ID.');
         }
     }
 
@@ -129,14 +138,17 @@ class ReceiptPrint extends Component
 
     public function render()
     {
-        if (!$this->transaction) {
+        if (!$this->transaction || !is_object($this->transaction) || !$this->transaction->exists) {
             // Redirect to dashboard if transaction not found
             return redirect()->route('dashboard');
         }
         
+        $table = $this->transaction->table ?? null;
+        $items = $this->transaction->items()->with('product')->get();
+        
         return view('livewire.transactions.receipt-print', [
-            'table' => $this->transaction->table,
-            'items' => $this->transaction->items()->with('product')->get()
-        ]);
+            'table' => $table,
+            'items' => $items
+        ])->layout('components.layouts.receipt');
     }
 }

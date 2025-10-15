@@ -202,11 +202,13 @@
         </div>
     </div>
     
-    <script>
+    <script type="module">
         // For product selection using card clicks
-        window.addEventListener('livewire:init', () => {
-            Livewire.on('productSelected', (productId) => {
-                // This would handle the product selection if we add a method for it
-            });
+        document.addEventListener('livewire:init', () => {
+            if (window.Livewire) {
+                window.Livewire.on('productSelected', (productId) => {
+                    // This would handle the product selection if we add a method for it
+                });
+            }
         });
     </script>
