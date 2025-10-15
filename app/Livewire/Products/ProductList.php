@@ -41,7 +41,7 @@ class ProductList extends Component
         $query = Product::query();
 
         if ($this->search) {
-            $query->where('name', 'like', '%' . $this->search . '%');
+            $query->where('name', 'like', '%' . trim($this->search) . '%');
         }
 
         if ($this->filterCategory !== 'all') {
@@ -50,13 +50,20 @@ class ProductList extends Component
 
         $this->products = $query->orderBy('name')->get();
     }
+    
+    public function clearSearch()
+    {
+        $this->search = '';
+        $this->filterCategory = 'all';
+        $this->loadProducts();
+    }
 
-    public function updatingSearch()
+    public function updatedSearch()
     {
         $this->loadProducts();
     }
 
-    public function updatingFilterCategory()
+    public function updatedFilterCategory()
     {
         $this->loadProducts();
     }

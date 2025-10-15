@@ -13,20 +13,40 @@
             
             <!-- Search and Filter -->
             <div class="mb-6 flex flex-col md:flex-row gap-4">
-                <input 
-                    wire:model.live="search"
-                    type="text" 
-                    placeholder="Cari nama atau email pengguna..." 
-                    class="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                />
-                <select 
-                    wire:model.live="filterRole"
-                    class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                >
-                    <option value="all">Semua Role</option>
-                    <option value="admin">Admin</option>
-                    <option value="cashier">Kasir</option>
-                </select>
+                <div class="flex flex-1 gap-2">
+                    <input 
+                        wire:model.live.debounce.300ms="search"
+                        type="text" 
+                        placeholder="Cari nama atau email pengguna..." 
+                        class="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    />
+                    @if($search)
+                        <button 
+                            wire:click="clearSearch"
+                            class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600"
+                        >
+                            ×
+                        </button>
+                    @endif
+                </div>
+                <div class="flex gap-2">
+                    <select 
+                        wire:model.live="filterRole"
+                        class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    >
+                        <option value="all">Semua Role</option>
+                        <option value="admin">Admin</option>
+                        <option value="cashier">Kasir</option>
+                    </select>
+                    @if($filterRole !== 'all')
+                        <button 
+                            wire:click="clearSearch"
+                            class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600"
+                        >
+                            ×
+                        </button>
+                    @endif
+                </div>
             </div>
             
             <!-- Create Form -->

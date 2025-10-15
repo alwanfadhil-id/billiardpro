@@ -40,8 +40,10 @@ class UserList extends Component
         $query = User::query();
 
         if ($this->search) {
-            $query->where('name', 'like', '%' . $this->search . '%')
-                  ->orWhere('email', 'like', '%' . $this->search . '%');
+            $query->where(function($q) {
+                $q->where('name', 'like', '%' . trim($this->search) . '%')
+                  ->orWhere('email', 'like', '%' . trim($this->search) . '%');
+            });
         }
 
         if ($this->filterRole !== 'all') {
@@ -50,13 +52,20 @@ class UserList extends Component
 
         $this->users = $query->orderBy('name')->get();
     }
+    
+    public function clearSearch()
+    {
+        $this->search = '';
+        $this->filterRole = 'all';
+        $this->loadUsers();
+    }
 
-    public function updatingSearch()
+    public function updatedSearch()
     {
         $this->loadUsers();
     }
 
-    public function updatingFilterRole()
+    public function updatedFilterRole()
     {
         $this->loadUsers();
     }

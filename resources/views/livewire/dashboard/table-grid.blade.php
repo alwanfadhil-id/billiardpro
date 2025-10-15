@@ -90,7 +90,7 @@
         <div class="flex flex-col md:flex-row gap-3">
             <div class="flex-1 relative">
                 <input
-                    wire:model.live="search"
+                    wire:model.live.debounce.300ms="search"
                     type="text"
                     placeholder="Cari nomor atau tipe meja..."
                     class="w-full pl-10 pr-4 py-2 border border-gray-600 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
@@ -100,16 +100,38 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                 </div>
+                @if($search)
+                <button 
+                    wire:click="clearSearch"
+                    class="absolute inset-y-0 right-0 pr-3 flex items-center"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+                @endif
             </div>
-            <select
-                wire:model.live="filterStatus"
-                class="md:w-48 px-4 py-2 border border-gray-600 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-            >
-                <option value="all">Semua Status</option>
-                <option value="available">Tersedia</option>
-                <option value="occupied">Terpakai</option>
-                <option value="maintenance">Maintenance</option>
-            </select>
+            <div class="flex items-center gap-2">
+                <select
+                    wire:model.live="filterStatus"
+                    class="md:w-48 px-4 py-2 border border-gray-600 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                >
+                    <option value="all">Semua Status</option>
+                    <option value="available">Tersedia</option>
+                    <option value="occupied">Terpakai</option>
+                    <option value="maintenance">Maintenance</option>
+                </select>
+                @if($filterStatus !== 'all')
+                <button 
+                    wire:click="clearSearch"
+                    class="p-2 border border-gray-600 rounded-lg bg-gray-700 text-white hover:bg-gray-600"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+                @endif
+            </div>
         </div>
         
         <!-- Legenda -->

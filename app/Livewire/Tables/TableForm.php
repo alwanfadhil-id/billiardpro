@@ -39,7 +39,7 @@ class TableForm extends Component
         $query = Table::query();
 
         if ($this->search) {
-            $query->where('name', 'like', '%' . $this->search . '%');
+            $query->where('name', 'like', '%' . trim($this->search) . '%');
         }
 
         if ($this->filterStatus !== 'all') {
@@ -48,13 +48,20 @@ class TableForm extends Component
 
         $this->tables = $query->orderBy('name')->get();
     }
+    
+    public function clearSearch()
+    {
+        $this->search = '';
+        $this->filterStatus = 'all';
+        $this->loadTables();
+    }
 
-    public function updatingSearch()
+    public function updatedSearch()
     {
         $this->loadTables();
     }
 
-    public function updatingFilterStatus()
+    public function updatedFilterStatus()
     {
         $this->loadTables();
     }

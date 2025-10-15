@@ -20,6 +20,22 @@ class TableGrid extends Component
     public $status;
 
     protected $listeners = ['tableStatusUpdated' => '$refresh'];
+    
+    public function updatedSearch()
+    {
+        // The search is handled in the render method, so we just need to refresh
+    }
+
+    public function updatedFilterStatus()
+    {
+        // The filter is handled in the render method, so we just need to refresh
+    }
+    
+    public function clearSearch()
+    {
+        $this->search = '';
+        $this->filterStatus = 'all';
+    }
 
     public function render()
     {
@@ -27,7 +43,7 @@ class TableGrid extends Component
         $query = Table::query();
 
         if ($this->search) {
-            $query->where('name', 'like', '%' . $this->search . '%');
+            $query->where('name', 'like', '%' . trim($this->search) . '%');
         }
 
         if ($this->filterStatus !== 'all') {
