@@ -4,8 +4,7 @@
 15-16 Oktober 2025
 
 ## 👥 Peserta
-- Qwen Code (AI Assistant)
-- Fadhil (Developer)
+- Alwan Fadhil (Developer)
 
 ## 📋 Ringkasan Masalah
 Saat melakukan pembayaran transaksi, `duration_minutes` tetap bernilai `0` meskipun sesi billing telah selesai. Ini menyebabkan laporan durasi salah dan potensi kehilangan pendapatan tidak terdeteksi.

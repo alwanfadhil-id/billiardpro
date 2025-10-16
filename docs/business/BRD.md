@@ -13,8 +13,10 @@ BilliardPro is a comprehensive billing and management system designed specifical
 - Automated billing calculation (rounded up to the nearest hour)
 - Additional product sales integration (drinks, snacks)
 - Cash payment processing and receipt generation
-- Daily and periodic sales reporting
+- Daily, monthly, and yearly sales reporting
 - User role management (admin/cashier)
+- Inventory tracking and management
+- Table differentiation (biasa, premium, vip)
 - Dark mode UI for enhanced usability
 
 ### 1.4 Target Users
@@ -31,6 +33,7 @@ BilliardPro is a comprehensive billing and management system designed specifical
 - Calculate duration and cost automatically
 - End sessions and process payments
 - Support for table maintenance status
+- Support for different table types (biasa, premium, vip) with different rates
 
 #### 2.1.2 Billing System
 - Hourly rate configuration per table
@@ -38,6 +41,7 @@ BilliardPro is a comprehensive billing and management system designed specifical
 - Additional item sales (food/drink) integration
 - Payment processing with cash handling
 - Receipt generation
+- Accurate duration calculation with fallback for edge cases
 
 #### 2.1.3 User Management
 - Role-based access control (Admin, Cashier)
@@ -46,14 +50,23 @@ BilliardPro is a comprehensive billing and management system designed specifical
 
 #### 2.1.4 Reporting
 - Daily sales reports
+- Monthly sales reports
+- Yearly sales reports
 - Table usage statistics
 - Revenue analysis
 - Transaction history
 
 #### 2.1.5 Product Management
 - Manage products (drinks, snacks)
-- Inventory tracking
+- Inventory tracking with stock levels
 - Pricing management
+- Low stock alerts
+
+#### 2.1.6 Inventory Management
+- Track stock levels for all products
+- Automatic stock reduction when items are sold
+- Stock movement history tracking
+- Low stock notifications
 
 ### 2.2 Non-Functional Requirements
 
@@ -77,20 +90,22 @@ BilliardPro is a comprehensive billing and management system designed specifical
 - System should maintain 99% uptime during business hours
 - Automatic backup of transaction data
 - Transaction integrity and audit trail
+- Accurate duration calculation even in edge cases
 
 ## 3. System Specifications
 
 ### 3.1 Technical Architecture
 - **Backend Framework**: Laravel 11
 - **Frontend**: Livewire + Tailwind CSS + DaisyUI
-- **Database**: MySQL/MariaDB
+- **Database**: MySQL/MariaDB/SQLite
 - **Authentication**: Laravel Breeze
 - **UI Components**: DaisyUI with dark mode
 
 ### 3.2 Database Schema Overview
 - `users`: User accounts and roles
 - `tables`: Billiard table information and rates
-- `products`: Additional items (drinks/snacks)
+- `products`: Additional items (drinks/snacks) with inventory tracking
+- `inventory_transactions`: Track stock movements
 - `transactions`: Billing session records
 - `transaction_items`: Additional item sales
 
@@ -119,6 +134,12 @@ BilliardPro is a comprehensive billing and management system designed specifical
 - Receipt preview and printing options
 - Payment confirmation
 
+### 4.4 Inventory Management
+- Real-time stock level display
+- Low stock alerts
+- Inventory transaction history
+- Stock management interface
+
 ## 5. Business Rules
 
 ### 5.1 Billing Rules
@@ -126,6 +147,7 @@ BilliardPro is a comprehensive billing and management system designed specifical
 - Duration is rounded up to the next full hour
 - Table rates can be configured individually
 - Additional items are charged separately
+- Use fallback calculation for duration if primary calculation fails
 
 ### 5.2 Session Rules
 - Only available tables can start new sessions
@@ -139,7 +161,22 @@ BilliardPro is a comprehensive billing and management system designed specifical
 - Receipt generation upon payment completion
 - Transaction history maintained permanently
 
+### 5.4 Inventory Rules
+- Products must have sufficient stock before they can be sold
+- Stock levels are automatically reduced when items are sold in transactions
+- Inventory transactions are recorded to track all stock movements
+- Low stock alerts are generated when stock falls below minimum levels
+
 ## 6. Integration Requirements
+
+### 6.1 Thermal Printing
+- Support for ESC/POS thermal printers
+- Fallback to browser printing if thermal printer unavailable
+
+### 6.2 Backup and Export
+- Database backup functionality
+- Export reports to various formats (PDF, CSV)
+- Data integrity checks
 
 ### 6.1 External Systems
 - Thermal printer support (ESC/POS)
