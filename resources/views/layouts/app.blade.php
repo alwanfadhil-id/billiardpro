@@ -31,6 +31,11 @@
             <main>
                 {{ $slot }}
             </main>
+            
+            <!-- Footer with version -->
+            <footer class="py-4 px-6 text-center text-xs text-gray-500 dark:text-gray-400 border-t border-gray-200 dark:border-gray-700">
+                <p>Version: {{ config('app.version') }}</p>
+            </footer>
         </div>
     </div>
 </body>

@@ -117,6 +117,11 @@
                         <p class="text-xs text-gray-500 dark:text-gray-400 capitalize">{{ Auth::user()->role }}</p>
                     </div>
                 </div>
+                
+                <!-- Version Info -->
+                <div class="mt-3 text-xs text-gray-500 dark:text-gray-400">
+                    <p>Version: {{ config('app.version') }}</p>
+                </div>
             </div>
         </div>
     </aside>
