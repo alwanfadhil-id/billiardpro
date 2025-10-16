@@ -15,7 +15,7 @@ Table tables {
   name varchar(100) [unique, not null]
   type varchar [default: `'biasa'`, not null] // Options: biasa, premium, vip (from migration 2025_10_14_155857)
   hourly_rate decimal(10,2) [not null]
-  status enum('available', 'occupied', 'maintenance') [default: `'available'`, not null]
+  status enum('available', 'occupied', 'maintenance', 'reserved') [default: `'available'`, not null]
   created_at timestamp [default: `CURRENT_TIMESTAMP`]
   updated_at timestamp [default: `CURRENT_TIMESTAMP`]
 }
@@ -68,9 +68,24 @@ Table inventory_transactions {
   created_at timestamp [default: `CURRENT_TIMESTAMP`]
 }
 
+Table bookings {
+  id int [pk, increment]
+  table_id int [not null]
+  customer_name varchar(255) [not null]
+  customer_phone varchar(20) [default: null]
+  booking_date date [not null]
+  start_time time [not null]
+  end_time time [not null]
+  status enum('confirmed', 'cancelled', 'completed', 'no_show') [default: `'confirmed'`, not null]
+  notes text [default: null]
+  created_at timestamp [default: `CURRENT_TIMESTAMP`]
+  updated_at timestamp [default: `CURRENT_TIMESTAMP`]
+}
+
 Ref: transactions.table_id >- tables.id [delete: restrict, update: cascade]
 Ref: transactions.user_id >- users.id [delete: restrict, update: cascade]
 Ref: transaction_items.transaction_id >- transactions.id [delete: cascade, update: cascade]
 Ref: transaction_items.product_id >- products.id [delete: restrict, update: cascade]
 Ref: inventory_transactions.product_id >- products.id [delete: restrict, update: cascade]
 Ref: inventory_transactions.user_id >- users.id [delete: restrict, update: cascade]
+Ref: bookings.table_id >- tables.id [delete: cascade, update: cascade]
