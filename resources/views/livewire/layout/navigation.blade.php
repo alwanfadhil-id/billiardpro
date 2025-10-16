@@ -129,6 +129,11 @@
                     </x-responsive-nav-link>
                 </form>
             </div>
+            
+            <!-- Version Info for Mobile -->
+            <div class="mt-3 px-4 text-xs text-gray-500 dark:text-gray-400">
+                <p>Version: {{ config('app.version') }}</p>
+            </div>
         </div>
     </div>
 </nav>
