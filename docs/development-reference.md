@@ -326,3 +326,36 @@ File ini adalah **satu-satunya sumber kebenaran (single source of truth)** untuk
 Setiap fitur baru **harus merujuk ke dokumen ini**.
 
 ---
+
+## ⚠️ CATATAN PENTING UNTUK PENGEMBANG
+
+### Penanganan `duration_minutes` dan `total`
+
+**Tanggal Update**: 15-16 Oktober 2025
+
+Dalam proses debugging, ditemukan bahwa `duration_minutes` bisa bernilai `0` karena beberapa alasan:
+
+1. **`started_at` di masa depan**: Jika `started_at` transaksi berada di masa depan relatif terhadap `now()`, maka `diffInMinutes()` bisa mengembalikan nilai negatif, yang menyebabkan `duration_minutes = 0` setelah `max(0, intval(...))`.
+
+2. **Pemanggilan `updateTransactionTotal()` prematur**: Dalam `PaymentProcess::mount()`, pemanggilan fungsi `updateTransactionTotal()` secara tidak sengaja bisa mengupdate `transaction->total` berdasarkan waktu saat ini, bukan berdasarkan `duration_minutes` yang seharusnya.
+
+**Solusi yang Diterapkan**:
+- Validasi `'before_or_equal:now'` ditambahkan di API untuk mencegah `started_at` di masa depan.
+- Fungsi `abs()` digunakan dalam perhitungan `diffInMinutes` sebagai workaround.
+- `PaymentProcess::mount()` dimodifikasi agar tidak memanggil `updateTransactionTotal()` untuk transaksi yang belum selesai.
+- Validasi pembayaran dalam `processPayment()` dimodifikasi untuk menggunakan `total` yang akan diperbarui.
+
+**Pelajaran Penting**:
+- Selalu gunakan `abs()` saat melakukan perhitungan selisih waktu untuk menangani bug `diffInMinutes`.
+- Hindari pemanggilan fungsi update prematur dalam lifecycle komponen Livewire.
+- Validasi waktu input dengan aturan `before_or_equal:now` untuk mencegah data waktu di masa depan.
+- Gunakan unit test untuk skenario edge case seperti `duration_minutes = 0`.
+
+Untuk detail lengkap perbaikan bug ini, lihat:
+- `docs/bugfix-duration-minutes-zero.md`
+- `docs/debugging-session-duration-minutes-zero.md`
+- `docs/unit-testing-debugging-value.md`
+- `docs/developer-guide-duration-minutes.md`
+- `docs/executive-summary-duration-minutes-fix.md`
+
+---

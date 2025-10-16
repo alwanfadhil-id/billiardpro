@@ -27,5 +27,5 @@ Route::apiResource('tables', TableController::class);
 Route::get('tables/statuses', [TableController::class, 'getStatuses']);
 
 Route::apiResource('products', ProductsController::class);
-Route::apiResource('transactions', TransactionsController::class);
-Route::apiResource('users', UsersController::class);
+Route::apiResource('transactions', TransactionsController::class)->middleware('auth:sanctum');
+Route::apiResource('users', UsersController::class)->middleware('auth:sanctum');

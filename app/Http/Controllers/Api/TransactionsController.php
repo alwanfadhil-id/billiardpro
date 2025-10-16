@@ -10,6 +10,7 @@ use App\Http\Resources\TableResource;
 use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 
 class TransactionsController extends Controller
@@ -52,7 +53,7 @@ class TransactionsController extends Controller
         $validated = $request->validate([
             'table_id' => 'required|exists:tables,id',
             'user_id' => 'required|exists:users,id',
-            'started_at' => 'required|date',
+            'started_at' => 'required|date|before_or_equal:now',
             'ended_at' => 'nullable|date',
             'duration_minutes' => 'sometimes|integer|min:0',
             'total' => 'sometimes|numeric|min:0',
@@ -91,7 +92,7 @@ class TransactionsController extends Controller
         $validated = $request->validate([
             'table_id' => 'sometimes|required|exists:tables,id',
             'user_id' => 'sometimes|required|exists:users,id',
-            'started_at' => 'sometimes|required|date',
+            'started_at' => 'sometimes|required|date|before_or_equal:now',
             'ended_at' => 'nullable|date',
             'duration_minutes' => 'sometimes|integer|min:0',
             'total' => 'sometimes|numeric|min:0',
@@ -99,6 +100,15 @@ class TransactionsController extends Controller
             'cash_received' => 'nullable|numeric|min:0',
             'change_amount' => 'nullable|numeric|min:0',
             'status' => 'sometimes|required|in:ongoing,completed,cancelled',
+        ]);
+
+        // Log untuk debugging durasi
+        Log::info('API Transaction Update Called', [
+            'user_id' => auth()->id(),
+            'transaction_id' => $transaction->id,
+            'original_duration_minutes' => $transaction->duration_minutes,
+            'update_data' => $validated,
+            'timestamp' => now(),
         ]);
 
         $transaction->update($validated);

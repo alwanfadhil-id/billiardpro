@@ -11,9 +11,12 @@ use Livewire\Component;
 class DailyReport extends Component
 {
     public $date;
+    public $revenueData = [];
     public $totalRevenue = 0;
     public $transactions = [];
-    public $revenueData = [];
+
+    // Don't store complex objects in public properties to avoid serialization errors
+    // Use computed properties instead
 
     public function mount()
     {
@@ -39,10 +42,14 @@ class DailyReport extends Component
         $this->totalRevenue = $this->transactions->sum('total');
     }
 
+
+
     public function loadRevenueChartData()
     {
         $this->revenueData = $this->getRevenueDataForChart();
     }
+
+
 
     private function getRevenueDataForChart()
     {

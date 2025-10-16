@@ -5,8 +5,12 @@ namespace App\Livewire\Transactions;
 use Livewire\Component;
 use App\Models\Transaction;
 use App\Models\TransactionItem;
+use Illuminate\Support\Facades\Log;
 use mike42\Escpos\Printer;
 use mike42\Escpos\PrintConnectors\NetworkPrintConnector;
+
+// DEBUGGING: Log file dimuat
+Log::info('PaymentProcess.php file LOADED');
 
 class PaymentProcess extends Component
 {
@@ -23,8 +27,11 @@ class PaymentProcess extends Component
         $this->transaction = Transaction::with(['table', 'items.product'])->find($transaction);
         
         if ($this->transaction) {
-            // Update the transaction total to ensure it has the correct value
-            $this->updateTransactionTotal();
+            // Jangan update total jika transaksi belum selesai
+            if ($this->transaction->status === 'completed' || $this->transaction->ended_at) {
+                // Update the transaction total to ensure it has the correct value
+                $this->updateTransactionTotal();
+            }
             
             $this->amountReceived = $this->transaction->total;
             $this->calculateChange();
@@ -86,6 +93,11 @@ class PaymentProcess extends Component
     
     public function processPayment()
     {
+        Log::info('PaymentProcess processPayment called', [
+            'transaction_id' => $this->transaction->id ?? 'null',
+            'user_id' => auth()->id() ?? 'guest',
+        ]);
+
         if (!$this->transaction) {
             session()->flash('error', 'Transaction not found.');
             return;
@@ -96,22 +108,96 @@ class PaymentProcess extends Component
             session()->flash('error', 'Transaksi ini sudah selesai diproses.');
             return;
         }
-        
-        if ($this->amountReceived < $this->transaction->total) {
+
+        // Gunakan total yang akan diperbarui, bukan total lama
+        $totalToCompare = $this->transaction->total;
+        if (isset($updateData['total'])) {
+            $totalToCompare = $updateData['total'];
+        }
+
+        Log::info('PaymentProcess processPayment: Checking amount received', [
+            'amount_received' => $this->amountReceived,
+            'transaction_total_old' => $this->transaction->total,
+            'transaction_total_new' => $totalToCompare ?? 'null',
+            'is_amount_less_than_total' => $this->amountReceived < $totalToCompare,
+        ]);
+
+        if ($this->amountReceived < $totalToCompare) {
             session()->flash('error', 'Jumlah yang diterima kurang dari total tagihan.');
             return;
         }
         
         // Emit event to show loading
         $this->dispatch('paymentStarted');
-        
-        // Update transaction status to completed
-        $this->transaction->update([
+
+        // Check if duration_minutes is still 0, calculate it as a fallback
+        $updateData = [
             'status' => 'completed',
             'payment_method' => $this->paymentMethod,
             'change_amount' => $this->change,
             'cash_received' => $this->amountReceived,
             'ended_at' => now(),
+        ];
+
+        Log::info('BEFORE INTVAL CHECK', [
+            'transaction_duration_minutes' => $this->transaction->duration_minutes,
+        ]);
+
+        // Fallback: Calculate duration if it was not set correctly earlier
+        $fallbackApplied = false;
+        Log::info('PaymentProcess processPayment: Checking duration_minutes for fallback', [
+            'transaction_duration_minutes' => $this->transaction->duration_minutes,
+            'intval_result' => intval($this->transaction->duration_minutes),
+            'is_intval_zero' => intval($this->transaction->duration_minutes) === 0,
+        ]);
+        
+        if (intval($this->transaction->duration_minutes) === 0) {
+            $rawDuration = abs(now()->diffInMinutes($this->transaction->started_at)); // Gunakan abs untuk workaround bug diffInMinutes
+            $calculatedDuration = max(0, intval($rawDuration)); // Apply same logic as TableGrid
+            
+            // Hitung total baru berdasarkan duration_minutes yang dihitung ulang
+            $table = $this->transaction->table; // Pastikan relasi table dimuat
+            Log::info('PaymentProcess processPayment: Fallback table info', [
+                'table_object' => $table ? 'exists' : 'null',
+                'table_hourly_rate' => $table ? $table->hourly_rate : 'null',
+            ]);
+            
+            if ($table) {
+                $ratePerMinute = $table->hourly_rate / 60;
+                $calculatedTotal = $calculatedDuration * $ratePerMinute;
+
+                $updateData['duration_minutes'] = $calculatedDuration;
+                $updateData['total'] = $calculatedTotal;
+                $fallbackApplied = true;
+                
+                Log::info('PaymentProcess processPayment: Fallback applied', [
+                    'calculated_duration' => $calculatedDuration,
+                    'rate_per_minute' => $ratePerMinute,
+                    'calculated_total' => $calculatedTotal,
+                ]);
+            }
+        }
+
+        // Log untuk debugging durasi sebelum update di processPayment
+        Log::info('PaymentProcess processPayment: Updating transaction', [
+            'transaction_id' => $this->transaction->id,
+            'fallback_applied' => $fallbackApplied,
+            'original_duration_minutes' => $this->transaction->duration_minutes,
+            'raw_duration_for_fallback' => $rawDuration ?? null,
+            'calculated_duration_for_fallback' => $calculatedDuration ?? null,
+            'update_data_keys' => array_keys($updateData),
+            'ended_at_for_update' => now(),
+        ]);
+
+        // Update transaction status to completed (and potentially duration_minutes as fallback)
+        $this->transaction->update($updateData);
+
+        // Log untuk debugging durasi setelah update di processPayment
+        Log::info('PaymentProcess processPayment: Transaction updated', [
+            'transaction_id' => $this->transaction->id,
+            'duration_minutes_after_update' => $this->transaction->fresh()->duration_minutes,
+            'ended_at_after_update' => $this->transaction->fresh()->ended_at,
+            'status_after_update' => $this->transaction->fresh()->status,
         ]);
         
         // Update the table status to available after payment is completed
