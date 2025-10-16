@@ -114,7 +114,7 @@ class AddItems extends Component
             $minutes = $startedAt->diffInMinutes($endedAt);
         }
 
-        $hours = ceil($minutes / 60); // Round up to next hour
+        $hours = max(1, ceil($minutes / 60)); // Round up to next hour with minimum 1 hour
         $hourlyRate = $this->transaction->table->hourly_rate;
         return $hourlyRate * $hours;
     }
