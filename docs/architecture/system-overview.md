@@ -8,6 +8,7 @@ BilliardPro adalah sistem billing otomatis untuk usaha biliar yang dirancang unt
 - Menyediakan laporan keuangan dan operasional harian, bulanan, dan tahunan
 - Mempermudah manajemen stok produk
 - Memberikan antarmuka yang intuitif bagi kasir
+- Memungkinkan booking meja di waktu mendatang untuk mengurangi konflik antara walk-in dan reservasi
 
 ## 🏗️ Arsitektur Sistem
 
@@ -24,6 +25,7 @@ BilliardPro adalah sistem billing otomatis untuk usaha biliar yang dirancang unt
 3. **Manajemen Produk** - Penambahan item tambahan dengan manajemen stok
 4. **Sistem Pembayaran** - Proses transaksi dan cetak struk
 5. **Pelaporan** - Laporan harian, bulanan, dan tahunan
+6. **Sistem Booking** - Manajemen pemesanan meja di waktu mendatang
 
 ## 🔄 Alur Bisnis Utama
 
@@ -42,6 +44,14 @@ Item ditambahkan ke transaksi → Total transaksi diperbarui →
 Saat pembayaran, stok secara permanen berkurang
 ```
 
+### 3. Proses Booking Meja
+```
+Kasir memilih tanggal dan jam booking → Sistem cek ketersediaan meja → 
+Kasir memilih meja dan masukkan info pelanggan → Sistem buat booking dengan status reserved → 
+Sistem ubah status meja menjadi reserved → Pada waktu booking tiba, kasir check-in pelanggan → 
+Sistem buat transaksi baru dan ubah status meja menjadi occupied
+```
+
 ## 🗃️ Struktur Database
 
 Sistem menggunakan beberapa tabel utama:
@@ -51,6 +61,7 @@ Sistem menggunakan beberapa tabel utama:
 - `transactions` - Data transaksi (meja, kasir, durasi, total)
 - `transaction_items` - Item tambahan dalam transaksi
 - `inventory_transactions` - Catatan historis perubahan stok
+- `bookings` - Data booking meja di waktu mendatang (pelanggan, tanggal, jam, status)
 
 ## 🔐 Keamanan dan Akses
 
@@ -84,12 +95,14 @@ Sistem menggunakan beberapa tabel utama:
 - **Dashboard Visual**: Grid meja dengan status warna
 - **Antarmuka Touch-friendly**: Tombol besar dan responsif
 - **Real-time Updates**: Informasi durasi dan biaya langsung diperbarui
-- **Dark Mode**: Mendukung tema gelap untuk kenyamanan penggunaan lama
+- **Dark Mode Lengkap**: Mendukung tema gelap konsisten di seluruh antarmuka
+- **Booking Management**: Antarmuka untuk mengelola pemesanan meja di waktu mendatang
+- **Status Meja Lengkap**: Menampilkan status `available`, `occupied`, `maintenance`, dan `reserved`
 
 ## 🔄 Scalability dan Extensibility
 
 Sistem dirancang untuk dapat dikembangkan dengan:
-- Modul booking untuk pemesanan meja
+- Modul booking untuk pemesanan meja (sudah diimplementasikan)
 - Integrasi printer thermal
 - API untuk integrasi eksternal
 - Multi-outlet support (di masa depan)
