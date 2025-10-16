@@ -183,4 +183,54 @@ class TransactionTest extends TestCase
         // Calculate total: 2 hours (20000) + 2 items (10000 + 7000) = 37000
         $this->assertEquals(37000, $transaction->calculateTotal());
     }
+
+    /**
+     * Test calculateTotal method with less than 1 minute duration (should apply minimum 1 hour)
+     */
+    public function test_calculate_total_with_minimum_1_hour_rule()
+    {
+        // Create a user, table with hourly rate
+        $user = User::factory()->create();
+        $table = Table::factory()->create([
+            'hourly_rate' => 10000,
+        ]);
+
+        // Create a transaction with duration less than 1 minute (should still apply minimum 1 hour)
+        $transaction = Transaction::create([
+            'user_id' => $user->id,
+            'table_id' => $table->id,
+            'started_at' => Carbon::now()->subSeconds(30), // 30 seconds ago
+            'ended_at' => Carbon::now(),
+            'payment_method' => 'cash',
+            'status' => 'completed',
+        ]);
+
+        // Calculate total should apply minimum 1 hour (10000) regardless of actual duration
+        $this->assertEquals(10000, $transaction->calculateTotal());
+    }
+
+    /**
+     * Test calculateTotal method with exactly 60 minutes (1 hour) duration
+     */
+    public function test_calculate_total_with_exactly_1_hour_duration()
+    {
+        // Create a user, table with hourly rate
+        $user = User::factory()->create();
+        $table = Table::factory()->create([
+            'hourly_rate' => 10000,
+        ]);
+
+        // Create a transaction with exactly 60 minutes duration
+        $transaction = Transaction::create([
+            'user_id' => $user->id,
+            'table_id' => $table->id,
+            'started_at' => Carbon::now()->subMinutes(60), // 60 minutes ago
+            'ended_at' => Carbon::now(),
+            'payment_method' => 'cash',
+            'status' => 'completed',
+        ]);
+
+        // Calculate total should be 1 hour (10000)
+        $this->assertEquals(10000, $transaction->calculateTotal());
+    }
 }

@@ -1,4 +1,10 @@
 # Changelog
+## [1.0.1] - 2024-01-16
+### Fixed
+- Dark mode display issues in table grid
+- Text contrast problems in modal dialogs  
+- Theme compatibility in form elements
+- Added theme toggle functionality
 
 ## [1.1.0-dev] - Development
 ### Added 

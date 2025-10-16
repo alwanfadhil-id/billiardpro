@@ -182,41 +182,12 @@ class TableGrid extends Component
     {
         $table = Table::findOrFail($tableId);
         
-        // Update any ongoing transactions - calculate duration and total, but don't complete the payment yet
+        // Update any ongoing transactions - only redirect to payment page, don't complete yet
         $ongoingTransaction = $table->transactions()->where('status', 'ongoing')->first();
         if ($ongoingTransaction) {
-            // Calculate duration and total cost for the transaction
-            $rawDuration = abs(now()->diffInMinutes($ongoingTransaction->started_at)); // Gunakan abs untuk workaround bug diffInMinutes
-            $duration = max(0, intval($rawDuration)); // Pastikan durasi tidak minus dan adalah integer
-            $ratePerHour = $table->hourly_rate;
-            $ratePerMinute = $ratePerHour / 60;
-            $total = $duration * $ratePerMinute;
-            
-            // Log untuk debugging durasi sebelum update
-            Log::info('TableGrid markAsAvailable: Updating transaction', [
-                'transaction_id' => $ongoingTransaction->id,
-                'table_id' => $table->id,
-                'calculated_duration' => $duration,
-                'calculated_total' => $total,
-                'raw_duration' => $rawDuration,
-                'started_at' => $ongoingTransaction->started_at,
-                'ended_at_for_update' => now(),
-            ]);
-
-            // Update transaction with end time and calculated total, but keep status as ongoing
-            // Payment and status change to 'completed' will happen on payment page
-            $ongoingTransaction->update([
-                'ended_at' => now(),
-                'duration_minutes' => $duration,
-                'total' => $total
-            ]);
-
-            // Log untuk debugging durasi setelah update
-            Log::info('TableGrid markAsAvailable: Transaction updated', [
-                'transaction_id' => $ongoingTransaction->id,
-                'duration_minutes_after_update' => $ongoingTransaction->fresh()->duration_minutes, // Ambil fresh untuk pastikan
-                'ended_at_after_update' => $ongoingTransaction->fresh()->ended_at,
-            ]);
+            // Update table status to available only AFTER payment is processed
+            // We keep the transaction as ongoing here and let PaymentProcess handle the end time
+            $this->dispatch('tableStatusUpdated');
             
             // Now redirect to payment page to complete the transaction
             return redirect()->route('transactions.payment', ['transaction' => $ongoingTransaction->id]);

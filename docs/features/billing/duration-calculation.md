@@ -9,7 +9,7 @@ Dokumen ini menjelaskan bagaimana sistem menangani perhitungan `duration_minutes
 ### Rumus Dasar
 ```
 duration_minutes = |ended_at - started_at|  (menggunakan fungsi abs() untuk mencegah nilai negatif)
-total_hours = ceil(duration_minutes / 60)
+total_hours = max(1, ceil(duration_minutes / 60))  (dibulatkan ke atas dengan minimum 1 jam)
 table_cost = hourly_rate * total_hours
 ```
 
@@ -55,19 +55,20 @@ Transaction::create([
 ```
 
 ### 2. Saat Sesi Diselesaikan (`markAsAvailable`)
+Saat checkout/selesai main, perhitungan mempertimbangkan minimum 1 jam dan pembulatan ke atas:
 ```php
-// app/Livewire/Dashboard/TableGrid.php
-$rawDuration = abs(now()->diffInMinutes($ongoingTransaction->started_at));
-$duration = max(0, intval($rawDuration));
-$ratePerHour = $table->hourly_rate;
-$ratePerMinute = $ratePerHour / 60;
-$total = $duration * $ratePerMinute;
+// app/Livewire/Transactions/PaymentProcess.php
+$rawDuration = abs(now()->diffInMinutes($this->transaction->started_at));
+$calculatedDuration = max(0, intval($rawDuration));
 
-$ongoingTransaction->update([
-    'ended_at' => now(),
-    'duration_minutes' => $duration,
-    'total' => $total
-]);
+// Apply minimum 1 hour and round up to nearest hour
+$actualHours = max(1, ceil($calculatedDuration / 60));
+$tableRatePerHour = $table->hourly_rate;
+$tableCost = $tableRatePerHour * $actualHours;
+
+// Calculate total including additional items
+$itemsCost = $this->transaction->items->sum('total_price');
+$calculatedTotal = $tableCost + $itemsCost;
 ```
 
 ### 3. Fallback dalam Pembayaran (`processPayment`)
@@ -77,15 +78,17 @@ if (intval($this->transaction->duration_minutes) === 0) {
     $rawDuration = abs(now()->diffInMinutes($this->transaction->started_at));
     $calculatedDuration = max(0, intval($rawDuration));
     
-    // Hitung total baru
-    $table = $this->transaction->table;
-    if ($table) {
-        $ratePerMinute = $table->hourly_rate / 60;
-        $calculatedTotal = $calculatedDuration * $ratePerMinute;
-        
-        $updateData['duration_minutes'] = $calculatedDuration;
-        $updateData['total'] = $calculatedTotal;
-    }
+    // Apply minimum 1 hour and round up to nearest hour
+    $actualHours = max(1, ceil($calculatedDuration / 60));
+    $tableRatePerHour = $table->hourly_rate;
+    $tableCost = $tableRatePerHour * $actualHours;
+    
+    // Calculate total including additional items
+    $itemsCost = $this->transaction->items->sum('total_price');
+    $calculatedTotal = $tableCost + $itemsCost;
+    
+    $updateData['duration_minutes'] = $calculatedDuration;
+    $updateData['total'] = $calculatedTotal;
 }
 ```
 
