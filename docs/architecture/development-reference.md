@@ -3,7 +3,7 @@ Berikut adalah **file referensi lengkap** yang dirancang khusus sebagai panduan 
 ---
 
 # 📄 **REFERENSI PENGEMBANGAN: SISTEM BILLING BILLIARD (BILLIARDPRO)**  
-**Versi**: 1.0  
+**Versi**: 2.0  
 **Framework**: Laravel 11  
 **Tujuan**: Panduan teknis & fungsional untuk AI dan developer
 
@@ -13,9 +13,10 @@ Berikut adalah **file referensi lengkap** yang dirancang khusus sebagai panduan 
 Sistem ini adalah aplikasi web untuk mengelola **billing meja billiard** secara otomatis, mencakup:
 - Pelacakan penggunaan meja per jam
 - Penambahan item tambahan (minuman/snack)
+- Manajemen stok produk
 - Perhitungan biaya otomatis (durasi dibulatkan ke atas per jam)
 - Pembayaran tunai & pencetakan struk
-- Laporan harian
+- Laporan harian, bulanan, dan tahunan
 - Antarmuka operator yang intuitif dan visual
 
 > ✅ **Fokus utama**: **Kemudahan penggunaan oleh kasir**, **akurasi perhitungan**, dan **tampilan modern**.
@@ -32,18 +33,27 @@ billiardpro/
 │   │   ├── Table.php
 │   │   ├── Product.php
 │   │   ├── Transaction.php
-│   │   └── TransactionItem.php
+│   │   ├── TransactionItem.php
+│   │   └── InventoryTransaction.php
 │   └── Livewire/
+│       ├── Actions/
 │       ├── Dashboard/
 │       │   └── TableGrid.php
+│       ├── Forms/
+│       ├── Layout/
+│       ├── Products/
+│       ├── Reports/
+│       │   ├── DailyReport.php
+│       │   ├── MonthlyReport.php
+│       │   └── YearlyReport.php
+│       ├── Settings/
 │       ├── Tables/
-│       │   └── TableForm.php
 │       ├── Transactions/
-│       │   ├── StartSession.php
 │       │   ├── AddItems.php
-│       │   └── PaymentProcess.php
-│       └── Reports/
-│           └── DailyReport.php
+│       │   ├── PaymentProcess.php
+│       │   ├── ReceiptPrint.php
+│       │   └── StartSession.php
+│       └── Users/
 ├── database/
 │   ├── migrations/
 │   └── seeders/
@@ -57,8 +67,12 @@ billiardpro/
 ├── public/
 │   └── receipts/ (opsional: simpan PDF struk)
 └── docs/
-    ├── BRD.md
-    └── ERD.md
+    └── architecture/
+    └── business/
+    └── features/
+    └── development/
+    └── operations/
+    └── api/
 ```
 
 ---
@@ -80,6 +94,7 @@ billiardpro/
 |------|------|-----------|-----------|
 | id | bigint | PK | - |
 | name | string(100) | unique | Contoh: "Meja 1", "VIP A" |
+| type | string | `biasa`, `premium`, `vip` | Jenis meja (dari migrasi 2025_10_14_155857) |
 | hourly_rate | decimal(10,2) | > 0 | Harga per jam |
 | status | enum | `available`, `occupied`, `maintenance` | Default: `available` |
 | created_at | timestamp | - | - |
@@ -91,6 +106,8 @@ billiardpro/
 | name | string(255) | - | "Es Teh", "Kacang Goreng" |
 | price | decimal(10,2) | > 0 | Harga satuan |
 | category | string(100) | nullable | Opsional |
+| stock_quantity | integer | >= 0 | Jumlah stok produk (dari migrasi 2025_01_01_000001) |
+| min_stock_level | integer | >= 0 | Level stok minimum (dari migrasi 2025_01_01_000001) |
 | created_at | timestamp | - | - |
 
 ### Tabel: `transactions`
@@ -119,6 +136,17 @@ billiardpro/
 | price_per_item | decimal(10,2) | ≥ 0 | Snapshot harga saat transaksi |
 | total_price | decimal(10,2) | ≥ 0 | = quantity × price_per_item |
 
+### Tabel: `inventory_transactions` (tambahan)
+| Kolom | Tipe | Constraint | Keterangan |
+|------|------|-----------|-----------|
+| id | bigint | PK | - |
+| product_id | bigint | FK → products.id | Produk yang terlibat |
+| user_id | bigint | FK → users.id | User yang melakukan perubahan |
+| type | enum | `in`, `out` | Jenis perubahan stok |
+| quantity | int | > 0 | Jumlah perubahan |
+| description | text | nullable | Deskripsi perubahan |
+| created_at | timestamp | - | - |
+
 ---
 
 ## 🔗 4. RELASI MODEL (ELOQUENT)
@@ -144,6 +172,20 @@ public function user() {
 public function items() {
     return $this->hasMany(TransactionItem::class);
 }
+public function handleStockReduction() { // Fungsi tambahan
+    // Reduce stock for each item in the transaction
+    foreach ($this->items as $item) {
+        $item->product->reduceStock($item->quantity);
+        // Create an inventory transaction record
+        InventoryTransaction::create([
+            "product_id" => $item->product_id,
+            "user_id" => $this->user_id,
+            "type" => "out",
+            "quantity" => $item->quantity,
+            "description" => "Sold in transaction #" . $this->id,
+        ]);
+    }
+}
 
 // TransactionItem.php
 public function transaction() {
@@ -156,6 +198,28 @@ public function product() {
 // Product.php
 public function transactionItems() {
     return $this->hasMany(TransactionItem::class);
+}
+public function reduceStock($quantity) { // Fungsi tambahan
+    if ($this->stock_quantity < $quantity) {
+        throw new \InvalidArgumentException('Insufficient stock for product: ' . $this->name);
+    }
+    
+    $this->update([
+        'stock_quantity' => $this->stock_quantity - $quantity
+    ]);
+}
+public function increaseStock($quantity) { // Fungsi tambahan
+    $this->update([
+        'stock_quantity' => $this->stock_quantity + $quantity
+    ]);
+}
+
+// InventoryTransaction.php (tambahan)
+public function product() {
+    return $this->belongsTo(Product::class);
+}
+public function user() {
+    return $this->belongsTo(User::class);
 }
 ```
 
@@ -195,27 +259,38 @@ public function transactionItems() {
 - Durasi dihitung dari `started_at` ke `now()` (saat transaksi ongoing)
 - Saat selesai:  
   ```php
-  $minutes = $ended_at->diffInMinutes($started_at);
+  // Gunakan abs() untuk menghindari nilai negatif dari diffInMinutes
+  $minutes = abs($ended_at->diffInMinutes($started_at));
   $hours = ceil($minutes / 60); // dibulatkan ke atas
   $tableCost = $hourly_rate * $hours;
   ```
+- Penanganan bug `duration_minutes = 0`: Jika `duration_minutes` masih 0 saat pembayaran, sistem akan menghitung ulang sebagai fallback
 
 ### Alur Transaksi:
 1. Kasir klik meja dengan status `available`
 2. Sistem ubah status meja → `occupied`
 3. Buat record `Transaction` dengan `status = ongoing`, `started_at = now()`
-4. Saat selesai:
-   - Hitung durasi & total
-   - Tambah item (jika ada)
+4. Selama sesi berlangsung:
+   - Tambah item tambahan (minuman/snack) → otomatis mengurangi stok
+5. Saat selesai:
+   - Hitung durasi & total (dengan fallback jika `duration_minutes = 0`)
    - Input pembayaran
    - Simpan `ended_at`, `duration_minutes`, `total`
    - Ubah status meja → `available`
    - Ubah status transaksi → `completed`
+   - Kurangi stok produk yang dibeli
+   - Buat record `inventory_transactions` untuk pelacakan stok
 
 ### Validasi:
 - Tidak boleh mulai sesi di meja `occupied` atau `maintenance`
 - Harga produk & meja harus > 0
 - Jumlah item ≥ 1
+- `started_at` tidak boleh di masa depan (`before_or_equal:now`)
+
+### Manajemen Stok:
+- Saat pembayaran selesai, stok produk yang dibeli dikurangi otomatis
+- Jika stok produk kurang dari jumlah yang ingin dibeli, transaksi akan gagal
+- Setiap perubahan stok dicatat di `inventory_transactions`
 
 ---
 
@@ -232,10 +307,13 @@ public function transactionItems() {
 - Gunakan Eloquent, hindari query mentah
 - Semua input divalidasi di Livewire
 - Gunakan `wire:loading` untuk feedback loading
+- Gunakan `abs()` saat menghitung durasi untuk mencegah bug `diffInMinutes`
+- Tambahkan logging komprehensif untuk debugging
 
 ### Testing:
 - Minimal: Uji alur end-to-end (mulai → bayar → laporan)
 - Gunakan `php artisan make:test` untuk fitur kritis
+- Buat unit test untuk skenario edge case seperti `duration_minutes = 0`
 
 ---
 
@@ -245,22 +323,27 @@ public function transactionItems() {
 // package.json (frontend)
 {
   "devDependencies": {
+    "@tailwindcss/forms": "^0.5.2",
     "alpinejs": "^3.13.0",
-    "autoprefixer": "^10.4.19",
-    "daisyui": "^4.10.1",
-    "laravel-vite-plugin": "^1.0",
-    "postcss": "^8.4.38",
-    "tailwindcss": "^3.4.3",
-    "vite": "^5.0"
+    "autoprefixer": "^10.4.2",
+    "axios": "^1.7.4",
+    "daisyui": "^5.1.29",
+    "laravel-vite-plugin": "^1.2.0",
+    "postcss": "^8.4.31",
+    "tailwindcss": "^3.1.0",
+    "vite": "^6.0.11"
   }
 }
 ```
 
 ```bash
 # composer.json (backend)
-- laravel/framework: ^11.0
-- livewire/livewire: ^3.0
-- (opsional) mike42/escpos-php: untuk printer thermal
+- laravel/framework: ^11.31
+- livewire/livewire: ^3.6.4
+- livewire/volt: ^1.7.0
+- mike42/escpos-php: ^2.0 (untuk printer thermal)
+- barryvdh/laravel-dompdf: ^3.1 (untuk PDF)
+- doctrine/dbal: ^4.3 (untuk migrasi database)
 ```
 
 ---
@@ -272,14 +355,25 @@ public function transactionItems() {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [TableGrid::class, 'render'])->name('dashboard');
     Route::get('/tables/manage', TableForm::class)->name('tables.manage');
-    Route::get('/transactions/report', DailyReport::class)->name('report.daily');
+    Route::get('/reports', DailyReport::class)->name('report.daily');
+    Route::get('/reports/monthly', MonthlyReport::class)->name('report.monthly');
+    Route::get('/reports/yearly', YearlyReport::class)->name('report.yearly');
+    Route::get('/transactions/add-items/{transaction}', AddItems::class)->name('transactions.add-items');
+    Route::get('/transactions/payment/{transaction}', PaymentProcess::class)->name('transactions.payment');
+    Route::get('/products', ProductList::class)->name('products.list');
+    Route::get('/settings', SettingsForm::class)->name('settings.index');
+    Route::get('/users', UserList::class)->name('users.list');
 });
 ```
 
 Halaman utama:
 - `/dashboard` → tampilan grid meja (untuk kasir)
 - `/tables/manage` → CRUD meja (admin only)
-- `/transactions/report` → laporan harian (admin)
+- `/reports` → laporan harian (admin)
+- `/reports/monthly` → laporan bulanan (admin)
+- `/reports/yearly` → laporan tahunan (admin)
+- `/products` → manajemen produk dan stok
+- `/settings` → pengaturan sistem
 
 ---
 
@@ -297,22 +391,23 @@ Halaman utama:
 
 ---
 
-## 📎 Lampiran: Template Dokumen
+## 📎 Lampiran: Dokumentasi Terkait
 
-### `docs/BRD.md`
-```md
-# Business Requirement Document
+### Dokumentasi Per Fitur
+- **Billing**: `docs/features/billing/duration-calculation.md`, `docs/features/billing/session-management.md`, `docs/features/billing/payment-process.md`
+- **Inventory**: `docs/features/inventory/stock-management.md`, `docs/features/inventory/product-management.md`
+- **Reporting**: `docs/features/reporting/daily-report.md`, `docs/features/reporting/monthly-report.md`, `docs/features/reporting/yearly-report.md`
+- **Booking**: `docs/features/booking/booking-system-dev.md`
 
-- Nama Tempat: [Isi]
-- Jumlah Meja: [Isi]
-- Tarif: [Isi]
-- Layanan Tambahan: [Daftar]
-- Metode Bayar: [Tunai/QRIS]
-- Printer: [Thermal/A4]
-```
+### Dokumentasi Pengembangan
+- **Bug Fixes**: `docs/development/bugfixes/`
+- **Testing**: `docs/development/testing/testing-checklist.md`
+- **Guides**: `docs/development/guides/`
 
-### `docs/ERD.md`
-> Gunakan dbdiagram.io dengan skema di bagian 3.
+### Dokumentasi Operasional
+- **Setup**: `docs/operations/database-setup.md`
+- **Backup**: `docs/operations/backup-command.md`
+- **Deployment**: `docs/operations/deployment-guide.md`
 
 ---
 
@@ -323,7 +418,7 @@ File ini adalah **satu-satunya sumber kebenaran (single source of truth)** untuk
 - Developer yang menulis/maintain sistem
 - Tester yang membuat skenario uji
 
-Setiap fitur baru **harus merujuk ke dokumen ini**.
+Setiap fitur baru **harus merujuk ke dokumen ini** dan dokumen terkait di folder spesifik.
 
 ---
 
@@ -344,6 +439,7 @@ Dalam proses debugging, ditemukan bahwa `duration_minutes` bisa bernilai `0` kar
 - Fungsi `abs()` digunakan dalam perhitungan `diffInMinutes` sebagai workaround.
 - `PaymentProcess::mount()` dimodifikasi agar tidak memanggil `updateTransactionTotal()` untuk transaksi yang belum selesai.
 - Validasi pembayaran dalam `processPayment()` dimodifikasi untuk menggunakan `total` yang akan diperbarui.
+- Diterapkan fallback untuk menghitung `duration_minutes` jika nilainya masih 0 saat pembayaran.
 
 **Pelajaran Penting**:
 - Selalu gunakan `abs()` saat melakukan perhitungan selisih waktu untuk menangani bug `diffInMinutes`.
@@ -352,10 +448,10 @@ Dalam proses debugging, ditemukan bahwa `duration_minutes` bisa bernilai `0` kar
 - Gunakan unit test untuk skenario edge case seperti `duration_minutes = 0`.
 
 Untuk detail lengkap perbaikan bug ini, lihat:
-- `docs/bugfix-duration-minutes-zero.md`
-- `docs/debugging-session-duration-minutes-zero.md`
-- `docs/unit-testing-debugging-value.md`
-- `docs/developer-guide-duration-minutes.md`
-- `docs/executive-summary-duration-minutes-fix.md`
+- `docs/development/bugfixes/bugfix-duration-minutes-zero.md`
+- `docs/development/bugfixes/debugging-session-duration-minutes-zero.md`
+- `docs/development/guides/developer-guide-duration-minutes.md`
+- `docs/development/guides/executive-summary-duration-minutes-fix.md`
+- `docs/development/guides/unit-testing-debugging-value.md`
 
 ---

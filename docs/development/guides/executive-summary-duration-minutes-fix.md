@@ -4,8 +4,7 @@
 15-16 Oktober 2025
 
 ## 👥 Tim
-- Qwen Code (AI Assistant)
-- Fadhil (Lead Developer)
+- Alwan Fadhil (Developer)
 
 ## 📋 MASALAH
 Sistem billing menunjukkan `duration_minutes = 0` untuk transaksi yang selesai, menyebabkan:
