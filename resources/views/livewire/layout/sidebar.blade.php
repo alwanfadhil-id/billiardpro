@@ -66,6 +66,26 @@
                         </svg>
                         Daily Report
                     </a>
+                    
+                    <!-- Monthly Report (for admins) -->
+                    <a href="{{ route('report.monthly') }}"
+                        class="flex items-center px-4 py-2 text-base font-medium rounded-lg transition-colors duration-200
+                        {{ request()->routeIs('report.monthly') ? 'bg-blue-100 text-blue-700 dark:bg-blue-600 dark:text-white' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700' }}">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        Monthly Report
+                    </a>
+                    
+                    <!-- Yearly Report (for admins) -->
+                    <a href="{{ route('report.yearly') }}"
+                        class="flex items-center px-4 py-2 text-base font-medium rounded-lg transition-colors duration-200
+                        {{ request()->routeIs('report.yearly') ? 'bg-blue-100 text-blue-700 dark:bg-blue-600 dark:text-white' : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700' }}">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        Yearly Report
+                    </a>
                     @endif
 
                     <!-- Users Management (for admins) -->

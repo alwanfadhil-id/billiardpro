@@ -8,6 +8,300 @@
 Sistem billing dan manajemen billiard otomatis berbasis web dengan Laravel 11
 </p>
 
+## 📚 Daftar Isi
+
+- [Dokumentasi Penting](#-dokumentasi-penting)
+  - [Dokumentasi Utama](#dokumentasi-utama)
+  - [Dokumentasi Teknis Spesifik](#dokumentasi-teknis-spesifik)
+  - [Panduan Operasional](#panduan-operasional)
+- [Fitur Utama](#-fitur-utama)
+- [Teknologi yang Digunakan](#-teknologi-yang-digunakan)
+- [Persyaratan Sistem](#-persyaratan-sistem)
+- [Instalasi](#-instalasi)
+  - [1. Clone Repository](#1-clone-repository)
+  - [2. Instal Dependensi](#2-instal-dependensi)
+  - [3. Konfigurasi Environment](#3-konfigurasi-environment)
+  - [4. Generate Application Key](#4-generate-application-key)
+  - [5. Migrasi Database](#5-migrasi-database)
+  - [6. Seeding Data Awal](#6-seeding-data-awal)
+  - [7. Instalasi Frontend](#7-instalasi-frontend)
+  - [8. Menjalankan Server Lokal](#8-menjalankan-server-lokal)
+- [Arsitektur Sistem](#-arsitektur-sistem)
+  - [Struktur Folder Utama](#struktur-folder-utama)
+  - [Komponen Utama](#komponen-utama)
+- [Alur Kerja Utama](#-alur-kerja-utama)
+  - [1. Manajemen Meja](#1-manajemen-meja)
+  - [2. Alur Transaksi](#2-alur-transaksi)
+  - [3. Pembayaran](#3-pembayaran)
+  - [4. Laporan](#4-laporan)
+- [Testing](#-testing)
+  - [Menjalankan Unit Test](#menjalankan-unit-test)
+  - [Menjalankan Feature Test](#menjalankan-feature-test)
+- [Troubleshooting](#-troubleshooting)
+  - [Masalah Umum](#masalah-umum)
+  - [Masalah Database](#masalah-database)
+- [Kontribusi](#-kontribusi)
+- [Lisensi](#-lisensi)
+
+## 📚 Dokumentasi Penting
+
+Untuk memahami sistem secara menyeluruh, silakan baca dokumentasi berikut:
+
+### Dokumentasi Utama
+
+- [Business Requirement Document (BRD)](./docs/BRD.md) - Spesifikasi bisnis lengkap
+- [Entity Relationship Diagram (ERD)](./docs/ERD.dbml) - Diagram relasi database
+- [Development Reference](./docs/development-reference.md) - Referensi teknis utama untuk pengembangan
+- [Implementation Analysis](./docs/IMPLEMENTATION_ANALYSIS.md) - Analisis implementasi saat ini
+- [Testing Checklist](./docs/testing-checklist.md) - Checklist pengujian sistem
+
+### Dokumentasi Teknis Spesifik
+
+Dokumentasi berikut menjelaskan penanganan bug kompleks `duration_minutes = 0`:
+
+- [Executive Summary](./docs/executive-summary-duration-minutes-fix.md) - Ringkasan eksekutif untuk manajemen
+- [Debugging Session](./docs/debugging-session-duration-minutes-zero.md) - Catatan lengkap sesi debugging
+- [Bug Fix Details](./docs/bugfix-duration-minutes-zero.md) - Detail teknis perbaikan bug
+- [Developer Guide](./docs/developer-guide-duration-minutes.md) - Panduan untuk developer
+- [Unit Testing Value](./docs/unit-testing-debugging-value.md) - Nilai unit testing dalam debugging
+
+### Panduan Operasional
+
+- [Database Setup](./docs/database-setup.md) - Panduan setup database
+- [Database Configuration Example](./docs/database-config.example) - Contoh konfigurasi database
+- [Database Backup Command](./docs/backup-command.md) - Dokumentasi perintah backup database
+
+## 🎯 Fitur Utama
+
+Sistem BilliardPro menyediakan berbagai fitur untuk memudahkan manajemen bisnis billiard:
+
+### Untuk Kasir
+- **Dashboard Visual**: Tampilan grid meja dengan status warna (hijau=tersedia, merah=dipakai, abu=maintenance)
+- **Manajemen Sesi**: Mulai dan akhiri sesi bermain billiard dengan satu klik
+- **Perhitungan Otomatis**: Durasi dan biaya dihitung otomatis berdasarkan tarif per jam
+- **Penjualan Item Tambahan**: Tambah minuman/snack ke transaksi yang sedang berjalan
+- **Pembayaran Tunai**: Proses pembayaran dengan perhitungan kembalian otomatis
+- **Pencetakan Struk**: Cetak struk transaksi (dengan printer thermal)
+
+### Untuk Admin
+- **Laporan Harian/Bulanan/Tahunan**: Analisis pendapatan dan statistik bisnis
+- **Manajemen Meja**: Tambah, edit, hapus, dan atur status meja
+- **Manajemen Produk**: Kelola daftar minuman/snack beserta harganya
+- **Manajemen Pengguna**: Tambah dan kelola akun kasir/admin
+- **Pengaturan Sistem**: Konfigurasi tarif dan pengaturan lainnya
+
+## ⚙️ Teknologi yang Digunakan
+
+- **Backend**: Laravel 11 dengan PHP 8.2+
+- **Frontend**: Livewire 3 + Tailwind CSS + DaisyUI
+- **Database**: MySQL/MariaDB atau SQLite
+- **Autentikasi**: Laravel Breeze
+- **Testing**: PHPUnit + Laravel Dusk (untuk browser test)
+- **Printer Thermal**: Library ESC/POS (mike42/escpos-php)
+
+## 🖥️ Persyaratan Sistem
+
+- PHP >= 8.2
+- Composer
+- Node.js & NPM
+- Database (MySQL 5.7+/MariaDB 10.2+ atau SQLite 3.8.8+)
+- Ekstensi PHP: OpenSSL, PDO, Mbstring, Tokenizer, XML, BCMath, Ctype, JSON
+- (Opsional) Printer thermal untuk pencetakan struk
+
+## 🚀 Instalasi
+
+Ikuti langkah-langkah berikut untuk menjalankan proyek secara lokal:
+
+### 1. Clone Repository
+
+```bash
+git clone https://github.com/username/billiardpro.git
+cd billiardpro
+```
+
+### 2. Instal Dependensi
+
+```bash
+composer install
+```
+
+### 3. Konfigurasi Environment
+
+Salin file `.env.example` ke `.env` dan sesuaikan konfigurasi database:
+
+```bash
+cp .env.example .env
+```
+
+Edit file `.env` dan atur koneksi database:
+```
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=billiardpro
+DB_USERNAME=your_username
+DB_PASSWORD=your_password
+```
+
+### 4. Generate Application Key
+
+```bash
+php artisan key:generate
+```
+
+### 5. Migrasi Database
+
+```bash
+php artisan migrate
+```
+
+### 6. Seeding Data Awal
+
+```bash
+php artisan db:seed
+```
+
+### 7. Instalasi Frontend
+
+```bash
+npm install
+npm run dev
+```
+
+### 8. Menjalankan Server Lokal
+
+```bash
+php artisan serve
+```
+
+Akses aplikasi di `http://localhost:8000`
+
+## 🏗️ Arsitektur Sistem
+
+### Struktur Folder Utama
+
+```
+billiardpro/
+├── app/
+│   ├── Http/
+│   ├── Livewire/
+│   ├── Models/
+│   └── Services/
+├── database/
+│   ├── migrations/
+│   └── seeders/
+├── resources/
+│   ├── views/
+│   └── js/
+├── routes/
+├── tests/
+└── docs/
+```
+
+### Komponen Utama
+
+- **Livewire Components**: Komponen interaktif untuk UI (Dashboard, TableGrid, PaymentProcess, dll)
+- **Models**: Representasi data (User, Table, Transaction, Product)
+- **Controllers**: API endpoints untuk integrasi
+- **Services**: Logika bisnis kompleks (ReportService, ExportService)
+- **Database**: Migrations dan seeders untuk struktur dan data awal
+
+## 🔁 Alur Kerja Utama
+
+### 1. Manajemen Meja
+
+1. Kasir melihat dashboard dengan grid meja
+2. Meja berwarna hijau (tersedia) bisa diklik untuk memulai sesi
+3. Sistem membuat transaksi baru dengan status `ongoing`
+4. Meja berubah warna menjadi merah (dipakai)
+
+### 2. Alur Transaksi
+
+1. Transaksi dibuat saat sesi dimulai
+2. Kasir bisa menambahkan item tambahan (minuman/snack)
+3. Saat sesi selesai, kasir klik "Meja Tersedia"
+4. Sistem menghitung durasi dan total biaya
+5. Kasir diarahkan ke halaman pembayaran
+
+### 3. Pembayaran
+
+1. Kasir masukkan jumlah uang yang diterima
+2. Sistem menghitung kembalian
+3. Validasi pembayaran (jumlah cukup/tidak)
+4. Jika valid, transaksi diselesaikan
+5. Meja kembali ke status tersedia
+6. Struk dicetak (jika printer tersedia)
+
+### 4. Laporan
+
+1. Admin akses halaman laporan
+2. Pilih periode (harian/bulanan/tahunan)
+3. Sistem menampilkan statistik:
+   - Total pendapatan
+   - Jumlah transaksi
+   - Rata-rata durasi
+   - Produk terlaris
+4. Ekspor data ke CSV/PDF (opsional)
+
+## 🧪 Testing
+
+Sistem dilengkapi dengan suite test untuk memastikan kualitas kode:
+
+### Menjalankan Unit Test
+
+```bash
+php artisan test --testsuite=Unit
+```
+
+### Menjalankan Feature Test
+
+```bash
+php artisan test --testsuite=Feature
+```
+
+### Menjalankan Test Tertentu
+
+```bash
+# Test untuk bug duration_minutes
+php artisan test --filter PaymentProcess
+
+# Test untuk alur transaksi
+php artisan test --filter TransactionFlowTest
+```
+
+## ❓ Troubleshooting
+
+### Masalah Umum
+
+**Q: Halaman tidak muncul / error blank**
+A: Pastikan `npm run dev` dijalankan dan tidak ada error di console browser
+
+**Q: Tidak bisa login**
+A: Pastikan seeding data user sudah dilakukan dan menggunakan kredensial yang benar
+
+**Q: Printer tidak merespons**
+A: Cek koneksi jaringan ke printer dan konfigurasi IP di `.env`
+
+### Masalah Database
+
+**Q: Migrasi gagal**
+A: Pastikan koneksi database benar dan user memiliki hak akses
+
+**Q: Seeding gagal**
+A: Cek log error untuk detail spesifik dan pastikan dependensi data terpenuhi
+
+## 🤝 Kontribusi
+
+1. Fork repository ini
+2. Buat branch fitur (`git checkout -b feature/AmazingFeature`)
+3. Commit perubahan (`git commit -m 'Add some AmazingFeature'`)
+4. Push ke branch (`git push origin feature/AmazingFeature`)
+5. Buka Pull Request
+
+## 📄 Lisensi
+
+Proyek ini dilisensikan di bawah lisensi MIT - lihat file [LICENSE.md](LICENSE.md) untuk detailnya.
+
 ## 📋 Daftar Isi
 
 - [Deskripsi](#deskripsi)

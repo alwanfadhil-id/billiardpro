@@ -13,6 +13,7 @@ class TableFactory extends Factory
     {
         return [
             'name' => $this->faker->unique()->word . ' ' . $this->faker->numberBetween(1, 100),
+            'type' => $this->faker->randomElement(['biasa', 'premium', 'vip']),
             'hourly_rate' => $this->faker->numberBetween(10000, 100000),
             'status' => $this->faker->randomElement(['available', 'occupied', 'maintenance']),
         ];

@@ -10,7 +10,8 @@
                 <p class="text-gray-600 dark:text-gray-300 mb-2">
                     Apakah Anda yakin ingin memulai sesi baru untuk meja ini?
                 </p>
-                <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">
+                <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg space-y-1">
+                    <p class="text-sm font-medium text-gray-800 dark:text-white">Jenis: {{ ucfirst($table?->type ?? 'N/A') }}</p>
                     <p class="text-sm font-medium text-gray-800 dark:text-white">Tarif: Rp {{ number_format($table?->hourly_rate ?? 0, 0, ',', '.') }}/jam</p>
                 </div>
             </div>

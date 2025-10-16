@@ -26,10 +26,21 @@ Route::middleware(['auth', 'verified'])->group(function () {
         
     Route::get('/transactions/payment/{transaction}', \App\Livewire\Transactions\PaymentProcess::class)
         ->name('transactions.payment');
+        
+    Route::get('/transactions/receipt/{transaction}', \App\Livewire\Transactions\ReceiptPrint::class)
+        ->name('transactions.receipt');
 
     // 🔹 LAPORAN HARIAN
     Route::get('/reports', \App\Livewire\Reports\DailyReport::class)
         ->name('report.daily');
+        
+    // 🔹 LAPORAN BULANAN
+    Route::get('/reports/monthly', \App\Livewire\Reports\MonthlyReport::class)
+        ->name('report.monthly');
+        
+    // 🔹 LAPORAN TAHUNAN
+    Route::get('/reports/yearly', \App\Livewire\Reports\YearlyReport::class)
+        ->name('report.yearly');
 
     // 🔹 KELOLA MEJA (admin only — proteksi role bisa ditambah di Livewire)
     Route::get('/tables/manage', \App\Livewire\Tables\TableForm::class)

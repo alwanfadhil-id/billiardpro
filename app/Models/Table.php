@@ -16,6 +16,7 @@ class Table extends Model
      */
     protected $fillable = [
         'name',
+        'type',
         'hourly_rate',
         'status',
     ];
@@ -37,11 +38,13 @@ class Table extends Model
     {
         static::creating(function ($table) {
             $table->validateRate();
+            $table->validateType();
             $table->validateStatus();
         });
 
         static::updating(function ($table) {
             $table->validateRate();
+            $table->validateType();
             $table->validateStatus();
         });
     }
@@ -53,6 +56,17 @@ class Table extends Model
     {
         if ($this->hourly_rate <= 0) {
             throw new \InvalidArgumentException('Hourly rate must be greater than 0');
+        }
+    }
+
+    /**
+     * Validate the type attribute.
+     */
+    public function validateType()
+    {
+        $validTypes = ['biasa', 'premium', 'vip'];
+        if (!in_array($this->type, $validTypes)) {
+            throw new \InvalidArgumentException("Type must be one of: " . implode(', ', $validTypes));
         }
     }
 
