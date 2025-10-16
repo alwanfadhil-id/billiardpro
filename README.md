@@ -164,7 +164,7 @@ Kontributor dianggap menyetujui bahwa kontribusi mereka akan dilisensikan di baw
 
 ## 📄 Lisensi
 
-Proyek ini dilisensikan di bawah lisensi MIT.
+Proyek ini dilisensikan di bawah [Lisensi MIT](LICENSE).
 
 ## 📞 Kontak Pengembang                                                                                               
 **Alwan Fadhil**                                                                                                      │
