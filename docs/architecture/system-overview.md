@@ -95,7 +95,7 @@ Sistem menggunakan beberapa tabel utama:
 - **Dashboard Visual**: Grid meja dengan status warna
 - **Antarmuka Touch-friendly**: Tombol besar dan responsif
 - **Real-time Updates**: Informasi durasi dan biaya langsung diperbarui
-- **Dark Mode**: Mendukung tema gelap untuk kenyamanan penggunaan lama
+- **Dark Mode Lengkap**: Mendukung tema gelap konsisten di seluruh antarmuka
 - **Booking Management**: Antarmuka untuk mengelola pemesanan meja di waktu mendatang
 - **Status Meja Lengkap**: Menampilkan status `available`, `occupied`, `maintenance`, dan `reserved`
 

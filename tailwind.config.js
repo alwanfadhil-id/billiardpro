@@ -18,6 +18,8 @@ export default {
         },
     },
 
+    darkMode: 'class', // Enable dark mode using the .dark class
+
     plugins: [forms, daisyui],
     
     daisyui: {
