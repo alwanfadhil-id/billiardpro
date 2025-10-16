@@ -148,11 +148,19 @@ Lihat dokumentasi `docs/features/billing/duration-calculation.md` untuk detail t
 
 ## 🤝 Kontribusi
 
-Kontribusi sangat diterima! Pastikan untuk:
-1. Membuat branch baru untuk fitur Anda
-2. Menulis test untuk kode baru
-3. Memperbarui dokumentasi yang relevan
-4. Mengikuti standar coding proyek
+Kontribusi sangat diterima melalui pull requests! Meskipun proyek ini dirilis di bawah lisensi MIT yang bersifat permissive, kami sangat menghargai kontribusi dari komunitas. Jika Anda ingin berkontribusi:
+
+1. Fork repository ini
+2. Buat branch fitur Anda (`git checkout -b feature/AwesomeFeature`)
+3. Lakukan perubahan dan pastikan menulis test jika relevan
+4. Commit perubahan Anda (`git commit -m 'Add some AwesomeFeature'`)
+5. Push ke branch Anda (`git push origin feature/AwesomeFeature`)
+6. Buka Pull Request
+
+Kontributor dianggap menyetujui bahwa kontribusi mereka akan dilisensikan di bawah MIT, sesuai dengan lisensi utama proyek. Pastikan untuk:
+- Menulis test untuk kode baru
+- Memperbarui dokumentasi yang relevan
+- Mengikuti standar coding proyek
 
 ## 📄 Lisensi
 
