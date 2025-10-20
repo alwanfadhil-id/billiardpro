@@ -1,6 +1,6 @@
 <div wire:poll.30s>
     <!-- Header Waktu -->
-    <div class="bg-blue-600 text-white rounded-t-xl p-4 shadow">
+    <div class="bg-blue-600 text-white rounded-t-xl p-4 shadow dark:bg-blue-700">
         <div class="flex justify-between items-center">
             <div>
                 <h2 class="text-sm opacity-80">Waktu Sekarang</h2>
@@ -18,17 +18,17 @@
     <!-- Summary Cards - Versi Admin (Dark Theme) -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 my-4 px-4">
         <!-- Pendapatan Hari Ini -->
-        <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 shadow">
+        <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 shadow dark:bg-gray-700 dark:border-gray-600">
             <div class="flex justify-between items-start">
                 <div>
-                    <p class="text-xs text-gray-400 mb-1">Pendapatan Hari Ini</p>
-                    <h3 class="text-lg font-bold text-green-400">
+                    <p class="text-xs text-gray-400 mb-1 dark:text-gray-300">Pendapatan Hari Ini</p>
+                    <h3 class="text-lg font-bold text-green-400 dark:text-green-300">
                         Rp {{ number_format($todayRevenue, 0, ',', '.') }}
                     </h3>
-                    <p class="text-xs text-gray-500">{{ $completedTransactions }} transaksi selesai</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">{{ $completedTransactions }} transaksi selesai</p>
                 </div>
-                <div class="p-2 bg-green-900/30 rounded-lg">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div class="p-2 bg-green-900/30 rounded-lg dark:bg-green-800/30">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-400 dark:text-green-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                 </div>
@@ -36,15 +36,15 @@
         </div>
 
         <!-- Meja Tersedia -->
-        <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 shadow">
+        <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 shadow dark:bg-gray-700 dark:border-gray-600">
             <div class="flex justify-between items-start">
                 <div>
-                    <p class="text-xs text-gray-400 mb-1">Meja Tersedia</p>
-                    <h3 class="text-lg font-bold text-blue-400">{{ $availableTables }}/{{ $totalTables }}</h3>
-                    <p class="text-xs text-gray-500">{{ $occupiedTables }} terpakai</p>
+                    <p class="text-xs text-gray-400 mb-1 dark:text-gray-300">Meja Tersedia</p>
+                    <h3 class="text-lg font-bold text-blue-400 dark:text-blue-300">{{ $availableTables }}/{{ $totalTables }}</h3>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">{{ $occupiedTables }} terpakai</p>
                 </div>
-                <div class="p-2 bg-blue-900/30 rounded-lg">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div class="p-2 bg-blue-900/30 rounded-lg dark:bg-blue-800/30">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-400 dark:text-blue-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                     </svg>
                 </div>
@@ -52,15 +52,15 @@
         </div>
 
         <!-- Sesi Aktif -->
-        <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 shadow">
+        <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 shadow dark:bg-gray-700 dark:border-gray-600">
             <div class="flex justify-between items-start">
                 <div>
-                    <p class="text-xs text-gray-400 mb-1">Sesi Aktif</p>
-                    <h3 class="text-lg font-bold text-yellow-400">{{ $activeSessions }}</h3>
-                    <p class="text-xs text-gray-500">Sedang berjalan</p>
+                    <p class="text-xs text-gray-400 mb-1 dark:text-gray-300">Sesi Aktif</p>
+                    <h3 class="text-lg font-bold text-yellow-400 dark:text-yellow-300">{{ $activeSessions }}</h3>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Sedang berjalan</p>
                 </div>
-                <div class="p-2 bg-yellow-900/30 rounded-lg">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div class="p-2 bg-yellow-900/30 rounded-lg dark:bg-yellow-800/30">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-yellow-400 dark:text-yellow-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                     </svg>
                 </div>
@@ -68,15 +68,15 @@
         </div>
 
         <!-- Maintenance -->
-        <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 shadow">
+        <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 shadow dark:bg-gray-700 dark:border-gray-600">
             <div class="flex justify-between items-start">
                 <div>
-                    <p class="text-xs text-gray-400 mb-1">Meja Maintenance</p>
-                    <h3 class="text-lg font-bold text-red-400">{{ $maintenanceTables }}</h3>
-                    <p class="text-xs text-gray-500">Tidak dapat digunakan</p>
+                    <p class="text-xs text-gray-400 mb-1 dark:text-gray-300">Meja Maintenance</p>
+                    <h3 class="text-lg font-bold text-red-400 dark:text-red-300">{{ $maintenanceTables }}</h3>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Tidak dapat digunakan</p>
                 </div>
-                <div class="p-2 bg-red-900/30 rounded-lg">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div class="p-2 bg-red-900/30 rounded-lg dark:bg-red-800/30">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-400 dark:text-red-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
@@ -86,17 +86,17 @@
     </div>
 
     <!-- Search & Filter Bar -->
-    <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 shadow mx-4 mb-4">
+    <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 shadow mx-4 mb-4 dark:bg-gray-700 dark:border-gray-600">
         <div class="flex flex-col md:flex-row gap-3">
             <div class="flex-1 relative">
                 <input
                     wire:model.live.debounce.300ms="search"
                     type="text"
                     placeholder="Cari nomor atau tipe meja..."
-                    class="w-full pl-10 pr-4 py-2 border border-gray-600 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                    class="w-full pl-10 pr-4 py-2 border border-gray-600 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm dark:bg-gray-600 dark:border-gray-500"
                 />
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                 </div>
@@ -105,7 +105,7 @@
                     wire:click="clearSearch"
                     class="absolute inset-y-0 right-0 pr-3 flex items-center"
                 >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 hover:text-white dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
@@ -114,7 +114,7 @@
             <div class="flex items-center gap-2">
                 <select
                     wire:model.live="filterStatus"
-                    class="md:w-48 px-4 py-2 border border-gray-600 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                    class="md:w-48 px-4 py-2 border border-gray-600 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm dark:bg-gray-600 dark:border-gray-500"
                 >
                     <option value="all">Semua Status</option>
                     <option value="available">Tersedia</option>
@@ -124,9 +124,9 @@
                 @if($filterStatus !== 'all')
                 <button 
                     wire:click="clearSearch"
-                    class="p-2 border border-gray-600 rounded-lg bg-gray-700 text-white hover:bg-gray-600"
+                    class="p-2 border border-gray-600 rounded-lg bg-gray-700 text-white hover:bg-gray-600 dark:bg-gray-600 dark:border-gray-500"
                 >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
@@ -135,18 +135,18 @@
         </div>
         
         <!-- Legenda -->
-        <div class="flex items-center gap-4 mt-3 text-sm text-gray-300">
+        <div class="flex items-center gap-4 mt-3 text-sm text-gray-300 dark:text-gray-400">
             <span>Legenda:</span>
             <div class="flex items-center gap-1">
-                <div class="w-3 h-3 bg-green-500 rounded"></div>
+                <div class="w-3 h-3 bg-green-500 rounded dark:bg-green-400"></div>
                 <span>Tersedia</span>
             </div>
             <div class="flex items-center gap-1">
-                <div class="w-3 h-3 bg-red-500 rounded"></div>
+                <div class="w-3 h-3 bg-red-500 rounded dark:bg-red-400"></div>
                 <span>Terpakai</span>
             </div>
             <div class="flex items-center gap-1">
-                <div class="w-3 h-3 bg-gray-500 rounded"></div>
+                <div class="w-3 h-3 bg-gray-500 rounded dark:bg-gray-400"></div>
                 <span>Maintenance</span>
             </div>
         </div>
@@ -157,16 +157,16 @@
         @foreach($tables as $table)
             @php
                 $bgColor = match($table->status) {
-                    'available' => 'bg-green-700 hover:bg-green-600',
-                    'occupied' => 'bg-red-700 hover:bg-red-600',
-                    'maintenance' => 'bg-gray-700',
-                    default => 'bg-gray-600'
+                    'available' => 'bg-green-700 hover:bg-green-600 dark:bg-green-800 dark:hover:bg-green-700',
+                    'occupied' => 'bg-red-700 hover:bg-red-600 dark:bg-red-800 dark:hover:bg-red-700',
+                    'maintenance' => 'bg-gray-700 dark:bg-gray-600',
+                    default => 'bg-gray-600 dark:bg-gray-500'
                 };
                 $statusBadge = match($table->status) {
-                    'available' => 'bg-green-600 text-white',
-                    'occupied' => 'bg-red-600 text-white',
-                    'maintenance' => 'bg-gray-600 text-white',
-                    default => 'bg-gray-500 text-white'
+                    'available' => 'bg-green-600 text-white dark:bg-green-700',
+                    'occupied' => 'bg-red-600 text-white dark:bg-red-700',
+                    'maintenance' => 'bg-gray-600 text-white dark:bg-gray-500',
+                    default => 'bg-gray-500 text-white dark:bg-gray-400'
                 };
             @endphp
 
@@ -182,9 +182,9 @@
                 </div>
                 <div class="text-center">
                     <span class="text-xs px-1.5 py-0.5 rounded
-                        @if($table->type === 'biasa') bg-blue-600 text-white @endif
-                        @if($table->type === 'premium') bg-purple-600 text-white @endif
-                        @if($table->type === 'vip') bg-yellow-600 text-white @endif
+                        @if($table->type === 'biasa') bg-blue-600 text-white dark:bg-blue-700 @endif
+                        @if($table->type === 'premium') bg-purple-600 text-white dark:bg-purple-700 @endif
+                        @if($table->type === 'vip') bg-yellow-600 text-white dark:bg-yellow-700 @endif
                     ">
                         {{ ucfirst($table->type) }}
                     </span>
@@ -231,12 +231,12 @@
         x-transition:leave="ease-in duration-150"
         x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
         x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-        class="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden z-50 relative"
+        class="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden z-50 relative dark:bg-gray-800"
         @click.stop
     >
         @if($showEditForm)
             <!-- Edit Form Header -->
-            <div class="bg-blue-600 text-white p-6">
+            <div class="bg-blue-600 text-white p-6 dark:bg-blue-700">
                 <div class="flex justify-between items-center">
                     <h3 class="text-xl font-bold">Edit Meja #{{ $selectedTable->name }}</h3>
                     <button 
@@ -251,53 +251,53 @@
             </div>
             
             <!-- Edit Form Body -->
-            <div class="p-6" @click.stop>
+            <div class="p-6 dark:bg-gray-800 dark:text-white" @click.stop>
                 <div class="space-y-4 mb-6">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Nomor Meja</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Nomor Meja</label>
                         <input 
                             wire:model="name"
                             type="text" 
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                             autofocus
                         />
-                        @error('name') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                        @error('name') <span class="text-red-500 text-sm dark:text-red-400">{{ $message }}</span> @enderror
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Jenis Meja</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Jenis Meja</label>
                         <select
                             wire:model="type"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                         >
                             <option value="biasa">Biasa</option>
                             <option value="premium">Premium</option>
                             <option value="vip">VIP</option>
                         </select>
-                        @error('type') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                        @error('type') <span class="text-red-500 text-sm dark:text-red-400">{{ $message }}</span> @enderror
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Tarif per Jam (Rp)</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Tarif per Jam (Rp)</label>
                         <input 
                             wire:model="hourly_rate"
                             type="number" 
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                         />
-                        @error('hourly_rate') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                        @error('hourly_rate') <span class="text-red-500 text-sm dark:text-red-400">{{ $message }}</span> @enderror
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Status</label>
                         <select
                             wire:model="status"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                         >
                             <option value="available">Tersedia</option>
                             <option value="occupied">Terpakai</option>
                             <option value="maintenance">Maintenance</option>
                         </select>
-                        @error('status') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                        @error('status') <span class="text-red-500 text-sm dark:text-red-400">{{ $message }}</span> @enderror
                     </div>
                 </div>
 
@@ -310,7 +310,7 @@
                     </button>
                     <button 
                         wire:click="toggleEditForm"
-                        class="px-4 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 font-medium transition-colors"
+                        class="px-4 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 font-medium transition-colors dark:bg-gray-600 dark:text-white dark:hover:bg-gray-500"
                     >
                         Batal
                     </button>
@@ -318,7 +318,7 @@
             </div>
         @else
             <!-- Header with green background -->
-            <div class="bg-green-600 text-white p-6">
+            <div class="bg-green-600 text-white p-6 dark:bg-green-700">
                 <div class="flex justify-between items-center">
                     <h3 class="text-xl font-bold">Meja #{{ $selectedTable->name }}</h3>
                     <button 
@@ -337,23 +337,23 @@
             </div>
 
             <!-- Body -->
-            <div class="p-6" @click.stop>
+            <div class="p-6 dark:bg-gray-800 dark:text-white" @click.stop>
                 <div class="space-y-4 mb-6">
-                    <div class="flex justify-between border-b pb-2">
-                        <span class="text-gray-600">Nomor Meja:</span>
-                        <span class="font-medium">#{{ $selectedTable->name }}</span>
+                    <div class="flex justify-between border-b pb-2 dark:border-gray-700">
+                        <span class="text-gray-600 dark:text-gray-300">Nomor Meja:</span>
+                        <span class="font-medium dark:text-white">#{{ $selectedTable->name }}</span>
                     </div>
-                    <div class="flex justify-between border-b pb-2">
-                        <span class="text-gray-600">Jenis Meja:</span>
-                        <span class="font-medium">{{ ucfirst($selectedTable->type) }}</span>
+                    <div class="flex justify-between border-b pb-2 dark:border-gray-700">
+                        <span class="text-gray-600 dark:text-gray-300">Jenis Meja:</span>
+                        <span class="font-medium dark:text-white">{{ ucfirst($selectedTable->type) }}</span>
                     </div>
-                    <div class="flex justify-between border-b pb-2">
-                        <span class="text-gray-600">Tarif per Jam:</span>
-                        <span class="font-medium">Rp {{ number_format($selectedTable->hourly_rate, 0, ',', '.') }}</span>
+                    <div class="flex justify-between border-b pb-2 dark:border-gray-700">
+                        <span class="text-gray-600 dark:text-gray-300">Tarif per Jam:</span>
+                        <span class="font-medium dark:text-white">Rp {{ number_format($selectedTable->hourly_rate, 0, ',', '.') }}</span>
                     </div>
-                    <div class="flex justify-between border-b pb-2">
-                        <span class="text-gray-600">Status:</span>
-                        <span class="font-medium text-green-600">{{ ucfirst($selectedTable->status) }}</span>
+                    <div class="flex justify-between border-b pb-2 dark:border-gray-700">
+                        <span class="text-gray-600 dark:text-gray-300">Status:</span>
+                        <span class="font-medium text-green-600 dark:text-green-400">{{ ucfirst($selectedTable->status) }}</span>
                     </div>
                 </div>
 
@@ -366,13 +366,13 @@
                     </button>
                     <button 
                         wire:click="toggleEditForm"
-                        class="px-4 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 font-medium transition-colors"
+                        class="px-4 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 font-medium transition-colors dark:bg-gray-600 dark:text-white dark:hover:bg-gray-500"
                     >
                         Edit Meja
                     </button>
                     <button 
                         wire:click="closeModal"
-                        class="px-4 py-3 bg-gray-100 text-gray-800 rounded-lg hover:bg-gray-200 font-medium transition-colors"
+                        class="px-4 py-3 bg-gray-100 text-gray-800 rounded-lg hover:bg-gray-200 font-medium transition-colors dark:bg-gray-600 dark:text-white dark:hover:bg-gray-500"
                     >
                         Tutup
                     </button>
@@ -413,11 +413,11 @@
         x-transition:leave="ease-in duration-150"
         x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
         x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-        class="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto z-50 relative"
+        class="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto z-50 relative dark:bg-gray-800"
         @click.stop
     >
         <!-- Header -->
-        <div class="flex justify-between items-center p-6 border-b border-gray-200">
+        <div class="flex justify-between items-center p-6 border-b border-gray-200 dark:border-gray-700 dark:text-white">
             <h3 class="text-xl font-bold">
                 @if($showEditForm)
                     Edit Meja #{{ $selectedTable->name }}
@@ -427,7 +427,7 @@
             </h3>
             <button 
                 @click="$wire.showEditForm ? $wire.toggleEditForm() : $wire.closeModal()"
-                class="text-gray-500 hover:text-gray-700"
+                class="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-100"
             >
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -436,55 +436,55 @@
         </div>
 
         <!-- Body -->
-        <div class="p-6" @click.stop>
+        <div class="p-6 dark:bg-gray-800 dark:text-white" @click.stop>
             @if($showEditForm)
                 <!-- Edit Form -->
                 <div class="space-y-4 mb-6">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Nomor Meja</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Nomor Meja</label>
                         <input 
                             wire:model="name"
                             type="text" 
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                             autofocus
                         />
-                        @error('name') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                        @error('name') <span class="text-red-500 text-sm dark:text-red-400">{{ $message }}</span> @enderror
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Jenis Meja</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Jenis Meja</label>
                         <select
                             wire:model="type"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                         >
                             <option value="biasa">Biasa</option>
                             <option value="premium">Premium</option>
                             <option value="vip">VIP</option>
                         </select>
-                        @error('type') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                        @error('type') <span class="text-red-500 text-sm dark:text-red-400">{{ $message }}</span> @enderror
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Tarif per Jam (Rp)</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Tarif per Jam (Rp)</label>
                         <input 
                             wire:model="hourly_rate"
                             type="number" 
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                         />
-                        @error('hourly_rate') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                        @error('hourly_rate') <span class="text-red-500 text-sm dark:text-red-400">{{ $message }}</span> @enderror
                     </div>
                     
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 dark:text-gray-300">Status</label>
                         <select
                             wire:model="status"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                         >
                             <option value="available">Tersedia</option>
                             <option value="occupied">Terpakai</option>
                             <option value="maintenance">Maintenance</option>
                         </select>
-                        @error('status') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                        @error('status') <span class="text-red-500 text-sm dark:text-red-400">{{ $message }}</span> @enderror
                     </div>
                 </div>
 
@@ -498,7 +498,7 @@
                     </button>
                     <button 
                         wire:click="toggleEditForm"
-                        class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300"
+                        class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 dark:bg-gray-600 dark:text-white dark:hover:bg-gray-500"
                     >
                         Batal
                     </button>
@@ -507,40 +507,40 @@
                 <!-- View Mode -->
                 <div class="flex items-center mb-6">
                     <div class="w-4 h-4 rounded-full 
-                        @if($selectedTable->status === 'available') bg-green-500
-                        @elseif($selectedTable->status === 'occupied') bg-red-500
-                        @else bg-gray-500 @endif 
+                        @if($selectedTable->status === 'available') bg-green-500 dark:bg-green-400
+                        @elseif($selectedTable->status === 'occupied') bg-red-500 dark:bg-red-400
+                        @else bg-gray-500 dark:bg-gray-400 @endif 
                         mr-2"></div>
-                    <span class="font-semibold capitalize text-lg">{{ $selectedTable->status }}</span>
+                    <span class="font-semibold capitalize text-lg dark:text-white">{{ $selectedTable->status }}</span>
                 </div>
 
                 <div class="space-y-4 mb-6">
-                    <div class="flex justify-between border-b pb-2">
-                        <span class="text-gray-600">Nomor Meja:</span>
-                        <span class="font-medium">#{{ $selectedTable->name }}</span>
+                    <div class="flex justify-between border-b pb-2 dark:border-gray-700">
+                        <span class="text-gray-600 dark:text-gray-300">Nomor Meja:</span>
+                        <span class="font-medium dark:text-white">#{{ $selectedTable->name }}</span>
                     </div>
-                    <div class="flex justify-between border-b pb-2">
-                        <span class="text-gray-600">Jenis Meja:</span>
-                        <span class="font-medium">{{ ucfirst($selectedTable->type) }}</span>
+                    <div class="flex justify-between border-b pb-2 dark:border-gray-700">
+                        <span class="text-gray-600 dark:text-gray-300">Jenis Meja:</span>
+                        <span class="font-medium dark:text-white">{{ ucfirst($selectedTable->type) }}</span>
                     </div>
-                    <div class="flex justify-between border-b pb-2">
-                        <span class="text-gray-600">Tarif per Jam:</span>
-                        <span class="font-medium">Rp {{ number_format($selectedTable->hourly_rate, 0, ',', '.') }}</span>
+                    <div class="flex justify-between border-b pb-2 dark:border-gray-700">
+                        <span class="text-gray-600 dark:text-gray-300">Tarif per Jam:</span>
+                        <span class="font-medium dark:text-white">Rp {{ number_format($selectedTable->hourly_rate, 0, ',', '.') }}</span>
                     </div>
-                    <div class="flex justify-between border-b pb-2">
-                        <span class="text-gray-600">Status:</span>
-                        <span class="font-medium">{{ ucfirst($selectedTable->status) }}</span>
+                    <div class="flex justify-between border-b pb-2 dark:border-gray-700">
+                        <span class="text-gray-600 dark:text-gray-300">Status:</span>
+                        <span class="font-medium dark:text-white">{{ ucfirst($selectedTable->status) }}</span>
                     </div>
-                    <div class="flex justify-between border-b pb-2">
-                        <span class="text-gray-600">Catatan:</span>
-                        <span class="font-medium">Sedang dalam perbaikan</span>
+                    <div class="flex justify-between border-b pb-2 dark:border-gray-700">
+                        <span class="text-gray-600 dark:text-gray-300">Catatan:</span>
+                        <span class="font-medium dark:text-white">Sedang dalam perbaikan</span>
                     </div>
                 </div>
 
                 <div class="flex flex-col space-y-3">
                     <button 
                         wire:click="toggleEditForm"
-                        class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300"
+                        class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 dark:bg-gray-600 dark:text-white dark:hover:bg-gray-500"
                     >
                         Edit Meja
                     </button>
@@ -589,7 +589,7 @@
 
                     <button 
                         wire:click="closeModal"
-                        class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300"
+                        class="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 dark:bg-gray-600 dark:text-white dark:hover:bg-gray-500"
                     >
                         Tutup
                     </button>

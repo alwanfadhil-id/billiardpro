@@ -127,7 +127,7 @@ class Transaction extends Model
 
     /**
      * Calculate the total amount for the transaction.
-     * Formula: (duration rounded up to nearest hour × hourly_rate) + total item cost
+     * Formula: (duration rounded up to nearest hour with minimum 1 hour × hourly_rate) + total item cost
      */
     public function calculateTotal()
     {
@@ -142,8 +142,8 @@ class Transaction extends Model
         $end = $this->ended_at ?? now();
         $durationMinutes = $start->diffInMinutes($end);
 
-        // Round up to nearest hour
-        $hours = ceil($durationMinutes / 60);
+        // Round up to nearest hour with minimum 1 hour
+        $hours = max(1, ceil($durationMinutes / 60));
 
         // Calculate table cost
         $tableCost = $table->hourly_rate * $hours;

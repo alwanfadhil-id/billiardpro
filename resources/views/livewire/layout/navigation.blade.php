@@ -36,14 +36,12 @@
                 </div>
             </div>
 
-            <!-- Settings Dropdown -->
-            <div class="hidden sm:flex sm:items-center sm:ms-6">
-                <!-- Dark mode toggle -->
-                <div class="dropdown dropdown-end mr-4">
-                    <button class="btn btn-ghost btn-circle" id="theme-toggle" onclick="toggleDarkMode()">
-                        <span id="theme-icon">🌙</span>
-                    </button>
-                </div>
+            <!-- Theme Toggle and Settings Dropdown -->
+            <div class="hidden sm:flex sm:items-center sm:ms-6 space-x-4">
+                <!-- Theme Toggle Button -->
+                <button onclick="toggleDarkMode()" class="btn btn-ghost" id="theme-toggle" title="Toggle dark mode">
+                    <span id="theme-icon">🌙</span>
+                </button>
                 
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">

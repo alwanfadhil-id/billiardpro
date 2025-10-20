@@ -166,37 +166,69 @@
 
         <!-- Dark Mode Toggle Script -->
         <script>
-            // Check for saved theme preference
-            const savedTheme = localStorage.getItem('theme');
-            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            
-            // Set initial theme
-            if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
-                document.documentElement.setAttribute('data-theme', 'dark');
-                document.documentElement.classList.add('dark');
-                document.getElementById('theme-icon').textContent = '☀️';
-            } else {
-                document.documentElement.setAttribute('data-theme', 'light');
-                document.documentElement.classList.remove('dark');
-                document.getElementById('theme-icon').textContent = '🌙';
-            }
-            
-            // Function to toggle dark mode
-            function toggleDarkMode() {
-                const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-                const newTheme = isDark ? 'light' : 'dark';
+            // Initialize dark mode
+            function initializeDarkMode() {
+                const savedTheme = localStorage.getItem('theme');
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
                 
-                document.documentElement.setAttribute('data-theme', newTheme);
-                localStorage.setItem('theme', newTheme);
+                // Determine initial theme
+                let initialTheme = 'light';
+                if (savedTheme) {
+                    initialTheme = savedTheme;
+                } else if (prefersDark) {
+                    initialTheme = 'dark';
+                }
                 
-                // Update class for compatibility
-                if (newTheme === 'dark') {
+                // Apply initial theme - both data-theme for DaisyUI and class for Tailwind
+                document.documentElement.setAttribute('data-theme', initialTheme);
+                
+                // Add or remove dark class based on theme for Tailwind dark: prefix
+                if (initialTheme === 'dark') {
                     document.documentElement.classList.add('dark');
-                    document.getElementById('theme-icon').textContent = '☀️';
+                    const themeIcon = document.getElementById('theme-icon');
+                    if (themeIcon) {
+                        themeIcon.textContent = '☀️';
+                    }
                 } else {
                     document.documentElement.classList.remove('dark');
-                    document.getElementById('theme-icon').textContent = '🌙';
+                    const themeIcon = document.getElementById('theme-icon');
+                    if (themeIcon) {
+                        themeIcon.textContent = '🌙';
+                    }
                 }
+            }
+
+            // Toggle dark mode function
+            function toggleDarkMode() {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                
+                // Update data-theme attribute for DaisyUI components
+                document.documentElement.setAttribute('data-theme', newTheme);
+                
+                // Update dark class for Tailwind dark: prefix classes
+                if (newTheme === 'dark') {
+                    document.documentElement.classList.add('dark');
+                    const themeIcon = document.getElementById('theme-icon');
+                    if (themeIcon) {
+                        themeIcon.textContent = '☀️';
+                    }
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    const themeIcon = document.getElementById('theme-icon');
+                    if (themeIcon) {
+                        themeIcon.textContent = '🌙';
+                    }
+                    localStorage.setItem('theme', 'light');
+                }
+            }
+
+            // Initialize when DOM is loaded
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initializeDarkMode);
+            } else {
+                initializeDarkMode();
             }
         </script>
     </body>
