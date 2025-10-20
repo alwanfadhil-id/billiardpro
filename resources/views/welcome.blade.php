@@ -32,9 +32,6 @@
                             </div>
                         </div>
                         <div class="flex items-center space-x-4">
-                            <button onclick="toggleDarkMode()" class="btn btn-ghost" id="theme-toggle">
-                                <span id="theme-icon">🌙</span>
-                            </button>
                         </div>
                     </div>
                 </div>
