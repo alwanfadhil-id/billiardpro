@@ -87,3 +87,53 @@ storage/app/public/*
 *.ico
 *.svg
 *.webp
+
+# Additional ignores for IDE and system files
+*.tmp
+*.temp
+*.cache
+*.swp
+*~
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+!Thumbs.db
+desktop.ini
+
+# Additional PHP/Laravel ignores
+.php_cs
+.php_cs.dist
+.phpunit.result.cache
+.php-cs-fixer.cache
+.npm
+.npx
+.yarn-integrity
+.yarn-metadata.json
+node-pre-gyp
+.nyc_output
+.cobertura_coverage
+
+# Database and environment
+*.db
+*.db.*
+*.env.local
+*.env.*.local
+.env.production
+.env.staging
+.env.testing
+
+# Archive
+*.zip
+*.tar
+*.gz
+*.rar
+*.7z
+
+# Log files
+*.log
+laravel.log
+logs/
