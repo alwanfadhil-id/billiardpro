@@ -1,12 +1,18 @@
 # Changelog
-
-All notable changes to this project will be documented in this file.
+## [1.0.1] - 2024-01-16
+### Fixed
+- Dark mode display issues in table grid
+- Text contrast problems in modal dialogs  
+- Theme compatibility in form elements
+- Added theme toggle functionality
 
 ## [1.1.0-dev] - Development
-### Added
-- Booking system (in progress)
+### Added 
 - Bookings table migration
-- Booking model and relationships
+- Booking model with relationships
+- Table model updates for booking system
+- [IN PROGRESS] Booking creation form
+- [PLANNED] Booking management interface
 
 ## [1.0.0] - 2024-01-15
 ### Added
@@ -15,4 +21,3 @@ All notable changes to this project will be documented in this file.
 - Table management
 - Payment processing
 - Daily reports
-- Product management

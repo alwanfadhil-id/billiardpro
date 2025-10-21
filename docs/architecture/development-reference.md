@@ -34,9 +34,13 @@ billiardpro/
 │   │   ├── Product.php
 │   │   ├── Transaction.php
 │   │   ├── TransactionItem.php
+│   │   ├── Booking.php  // Ditambahkan untuk fitur booking
 │   │   └── InventoryTransaction.php
 │   └── Livewire/
 │       ├── Actions/
+│       ├── Bookings/  // Ditambahkan untuk fitur booking
+│       │   ├── BookingList.php
+│       │   └── CreateBooking.php
 │       ├── Dashboard/
 │       │   └── TableGrid.php
 │       ├── Forms/
@@ -96,8 +100,23 @@ billiardpro/
 | name | string(100) | unique | Contoh: "Meja 1", "VIP A" |
 | type | string | `biasa`, `premium`, `vip` | Jenis meja (dari migrasi 2025_10_14_155857) |
 | hourly_rate | decimal(10,2) | > 0 | Harga per jam |
-| status | enum | `available`, `occupied`, `maintenance` | Default: `available` |
+| status | enum | `available`, `occupied`, `maintenance`, `reserved` | Default: `available` (dari fitur booking) |
 | created_at | timestamp | - | - |
+
+### Tabel: `bookings` (baru - dari fitur booking)
+| Kolom | Tipe | Constraint | Keterangan |
+|------|------|-----------|-----------|
+| id | bigint | PK | - |
+| table_id | bigint | FK → tables.id | Meja yang dibooking |
+| customer_name | string(255) | - | Nama pelanggan |
+| customer_phone | string(20) | nullable | Nomor telepon pelanggan |
+| booking_date | date | - | Tanggal booking |
+| start_time | time | - | Jam mulai booking |
+| end_time | time | - | Jam selesai booking |
+| status | enum | `confirmed`, `cancelled`, `completed`, `no_show` | Default: `confirmed` |
+| notes | text | nullable | Catatan tambahan |
+| created_at | timestamp | - | - |
+| updated_at | timestamp | - | - |
 
 ### Tabel: `products`
 | Kolom | Tipe | Constraint | Keterangan |
@@ -160,6 +179,112 @@ public function transactions() {
 // Table.php
 public function transactions() {
     return $this->hasMany(Transaction::class);
+}
+public function bookings() {  // Ditambahkan untuk fitur booking
+    return $this->hasMany(Booking::class);
+}
+// Cek ketersediaan untuk booking
+public function isAvailableForBooking(string $date, string $startTime, string $endTime, ?int $excludeBookingId = null): bool
+{
+    $conflictingBooking = $this->bookings()
+        ->confirmed()
+        ->forDate($date)
+        ->where(function ($query) use ($startTime, $endTime) {
+            $query->whereBetween('start_time', [$startTime, $endTime])
+                  ->orWhereBetween('end_time', [$startTime, $endTime])
+                  ->orWhere(function ($q) use ($startTime, $endTime) {
+                      $q->where('start_time', '<=', $startTime)
+                        ->where('end_time', '>=', $endTime);
+                  });
+        });
+    
+    if ($excludeBookingId) {
+        $conflictingBooking->where('id', '!=', $excludeBookingId);
+    }
+    
+    return $conflictingBooking->doesntExist();
+}
+// Cek apakah meja bisa dibooking (available & tidak maintenance)
+public function canBeBooked(): bool
+{
+    return in_array($this->status, ['available', 'reserved']);
+}
+
+// Booking.php (model baru untuk fitur booking)
+class Booking extends Model
+{
+    protected $fillable = [
+        'table_id',
+        'customer_name', 
+        'customer_phone',
+        'booking_date',
+        'start_time',
+        'end_time', 
+        'status',
+        'notes'
+    ];
+
+    protected $casts = [
+        'booking_date' => 'date',
+        'start_time' => 'datetime',
+        'end_time' => 'datetime',
+    ];
+
+    // Relasi ke meja
+    public function table(): BelongsTo
+    {
+        return $this->belongsTo(Table::class);
+    }
+
+    // Scope helpers
+    public function scopeConfirmed($query)
+    {
+        return $query->where('status', 'confirmed');
+    }
+    
+    public function scopeForDate($query, $date)
+    {
+        return $query->where('booking_date', $date);
+    }
+    
+    public function scopeUpcoming($query)
+    {
+        return $query->where('booking_date', '>=', now()->format('Y-m-d'))
+                    ->where('status', 'confirmed')
+                    ->orderBy('booking_date')
+                    ->orderBy('start_time');
+    }
+
+    // Business logic methods
+    public function isActive(): bool
+    {
+        return $this->status === 'confirmed';
+    }
+    
+    public function isOverdue(): bool
+    {
+        if (!$this->isActive()) return false;
+        
+        $bookingDateTime = \Carbon\Carbon::parse($this->booking_date->format('Y-m-d') . ' ' . $this->start_time);
+        return now()->greaterThan($bookingDateTime->addMinutes(15));
+    }
+    
+    public function markAsNoShow(): void
+    {
+        $this->update(['status' => 'no_show']);
+        $this->table->update(['status' => 'available']);
+    }
+    
+    public function completeBooking(): void
+    {
+        $this->update(['status' => 'completed']);
+    }
+    
+    public function cancelBooking(): void
+    {
+        $this->update(['status' => 'cancelled']);
+        $this->table->update(['status' => 'available']);
+    }
 }
 
 // Transaction.php
@@ -239,6 +364,7 @@ public function user() {
 | `available` | `bg-green-500` | Putih |
 | `occupied` | `bg-red-500` | Putih |
 | `maintenance` | `bg-gray-500` | Putih |
+| `reserved` | `bg-yellow-500` | Putih | (baru - dari fitur booking)
 
 ### Komponen UI yang Digunakan:
 - **Tombol**: `<button class="btn btn-primary">`
@@ -281,11 +407,27 @@ public function user() {
    - Kurangi stok produk yang dibeli
    - Buat record `inventory_transactions` untuk pelacakan stok
 
+### Alur Booking (fitur baru):
+1. Kasir buka halaman booking dan pilih tanggal serta jam
+2. Sistem tampilkan meja yang tersedia untuk tanggal dan jam tersebut
+3. Kasir pilih meja, masukkan info pelanggan, dan buat booking
+4. Sistem ubah status meja → `reserved` dan buat record `Booking`
+5. Pada waktu booking tiba, kasir bisa lakukan "Check-in":
+   - Sistem ubah status booking → `completed`
+   - Sistem buat transaksi baru dengan meja tsb
+   - Sistem ubah status meja → `occupied`
+6. Jika pelanggan tidak datang dalam 15 menit, sistem ubah status booking → `no_show`
+   - Sistem ubah status meja → `available`
+
 ### Validasi:
 - Tidak boleh mulai sesi di meja `occupied` atau `maintenance`
+- Tidak boleh booking di meja `maintenance`
 - Harga produk & meja harus > 0
 - Jumlah item ≥ 1
 - `started_at` tidak boleh di masa depan (`before_or_equal:now`)
+- Tidak boleh booking jam yang sudah diambil (cek konflik waktu)
+- Maksimal booking 7 hari ke depan
+- Durasi booking 1-3 jam
 
 ### Manajemen Stok:
 - Saat pembayaran selesai, stok produk yang dibeli dikurangi otomatis
@@ -314,6 +456,11 @@ public function user() {
 - Minimal: Uji alur end-to-end (mulai → bayar → laporan)
 - Gunakan `php artisan make:test` untuk fitur kritis
 - Buat unit test untuk skenario edge case seperti `duration_minutes = 0`
+
+### Background Processing:
+- Fitur booking memiliki command untuk otomatis membatalkan booking yang terlambat:
+  - `php artisan bookings:cancel-overdue` (akan dijadwalkan per menit)
+- Command ini akan menandai booking sebagai `no_show` jika pelanggan tidak datang dalam 15 menit dari waktu booking
 
 ---
 
@@ -363,6 +510,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/products', ProductList::class)->name('products.list');
     Route::get('/settings', SettingsForm::class)->name('settings.index');
     Route::get('/users', UserList::class)->name('users.list');
+    
+    // Booking Routes (fitur baru)
+    Route::prefix('bookings')->group(function () {
+        Route::get('/', \App\Livewire\Bookings\BookingList::class)->name('bookings.index');
+        Route::get('/create', \App\Livewire\Bookings\CreateBooking::class)->name('bookings.create');
+    });
 });
 ```
 
@@ -374,6 +527,8 @@ Halaman utama:
 - `/reports/yearly` → laporan tahunan (admin)
 - `/products` → manajemen produk dan stok
 - `/settings` → pengaturan sistem
+- `/bookings` → manajemen booking (baru)
+- `/bookings/create` → buat booking baru (baru)
 
 ---
 

@@ -23,25 +23,25 @@
                             <div class="mt-2 space-y-2">
                                 <div class="flex justify-between">
                                     <span class="text-gray-600 dark:text-gray-300">Meja:</span>
-                                    <span class="font-medium">{{ $transaction->table->name ?? 'N/A' }}</span>
+                                    <span class="font-medium dark:text-white">{{ $transaction->table->name ?? 'N/A' }}</span>
                                 </div>
                                 <div class="flex justify-between">
                                     <span class="text-gray-600 dark:text-gray-300">Waktu Mulai:</span>
-                                    <span class="font-medium">{{ $transaction->started_at ? $transaction->started_at->format('d M Y H:i') : 'N/A' }}</span>
+                                    <span class="font-medium dark:text-white">{{ $transaction->started_at ? $transaction->started_at->format('d M Y H:i') : 'N/A' }}</span>
                                 </div>
                                 <div class="flex justify-between">
                                     <span class="text-gray-600 dark:text-gray-300">Waktu Selesai:</span>
-                                    <span class="font-medium">
+                                    <span class="font-medium dark:text-white">
                                         @if($transaction->ended_at)
                                             {{ $transaction->ended_at->format('d M Y H:i') }}
                                         @else
-                                            <span class="text-orange-500">Sedang Berlangsung</span>
+                                            <span class="text-orange-500 dark:text-orange-400">Sedang Berlangsung</span>
                                         @endif
                                     </span>
                                 </div>
                                 <div class="flex justify-between">
                                     <span class="text-gray-600 dark:text-gray-300">Durasi:</span>
-                                    <span class="font-medium">
+                                    <span class="font-medium dark:text-white">
                                         @if($transaction->ended_at)
                                             {{ $transaction->started_at->diffInHours($transaction->ended_at) }} jam 
                                             {{ $transaction->started_at->diffInMinutes($transaction->ended_at) % 60 }} menit
@@ -56,26 +56,26 @@
                                         @endif
                                     </span>
                                 </div>
-                                <div class="border-t pt-2 mt-2">
+                                <div class="border-t border-gray-200 dark:border-gray-600 pt-2 mt-2">
                                     <div class="flex justify-between">
                                         <span class="text-gray-600 dark:text-gray-300">Tarif per Jam:</span>
-                                        <span class="font-medium">Rp {{ number_format($transaction->table->hourly_rate ?? 0, 0, ',', '.') }}</span>
+                                        <span class="font-medium dark:text-white">Rp {{ number_format($transaction->table->hourly_rate ?? 0, 0, ',', '.') }}</span>
                                     </div>
                                     <div class="flex justify-between">
                                         <span class="text-gray-600 dark:text-gray-300">Subtotal Meja:</span>
-                                        <span class="font-medium">Rp {{ number_format($this->calculateTableCost(), 0, ',', '.') }}</span>
+                                        <span class="font-medium dark:text-white">Rp {{ number_format($this->calculateTableCost(), 0, ',', '.') }}</span>
                                     </div>
                                     <div class="pt-2 space-y-1">
                                         <div class="font-semibold text-gray-700 dark:text-gray-300">Item Tambahan:</div>
                                         @forelse($transactionItems as $item)
                                             <div class="flex justify-between pl-2">
-                                                <span class="text-sm">{{ $item->product->name }} (x{{ $item->quantity }})</span>
-                                                <span class="text-sm">Rp {{ number_format($item->total_price, 0, ',', '.') }}</span>
+                                                <span class="text-sm dark:text-gray-200">{{ $item->product->name }} (x{{ $item->quantity }})</span>
+                                                <span class="text-sm dark:text-gray-200">Rp {{ number_format($item->total_price, 0, ',', '.') }}</span>
                                             </div>
                                         @empty
                                             <div class="text-sm text-gray-500 dark:text-gray-400 pl-2">Tidak ada item tambahan</div>
                                         @endforelse
-                                        <div class="flex justify-between font-medium mt-1">
+                                        <div class="flex justify-between font-medium mt-1 dark:text-white">
                                             <span>Total Item:</span>
                                             <span>Rp {{ number_format($transactionItems->sum('total_price'), 0, ',', '.') }}</span>
                                         </div>
@@ -87,14 +87,14 @@
                         <div class="mt-6">
                             <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Total</h3>
                             <div class="mt-2 p-4 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
-                                <div class="flex justify-between text-lg font-bold">
+                                <div class="flex justify-between text-lg font-bold dark:text-white">
                                     <span>Total:</span>
-                                    <span>Rp {{ number_format($transaction->total ?? 0, 0, ',', '.') }}</span>
+                                    <span class="dark:text-white">Rp {{ number_format($transaction->total ?? 0, 0, ',', '.') }}</span>
                                 </div>
                             </div>
                             
                             <div class="mt-4 flex gap-2">
-                                <a href="{{ route('dashboard') }}" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 rounded-lg text-center">
+                                <a href="{{ route('dashboard') }}" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 rounded-lg text-center dark:bg-gray-600 dark:hover:bg-gray-500">
                                     Kembali
                                 </a>
                                 <button wire:click="goToPayment" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg">

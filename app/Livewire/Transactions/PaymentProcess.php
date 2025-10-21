@@ -69,7 +69,7 @@ class PaymentProcess extends Component
             $minutes = $startedAt->diffInMinutes($endedAt);
         }
 
-        $hours = ceil($minutes / 60); // Round up to next hour
+        $hours = max(1, ceil($minutes / 60)); // Round up to next hour with minimum 1 hour
         $hourlyRate = $this->transaction->table->hourly_rate;
         return $hourlyRate * $hours;
     }
@@ -109,20 +109,34 @@ class PaymentProcess extends Component
             return;
         }
 
-        // Gunakan total yang akan diperbarui, bukan total lama
-        $totalToCompare = $this->transaction->total;
-        if (isset($updateData['total'])) {
-            $totalToCompare = $updateData['total'];
-        }
+        // Calculate duration and total based on the actual payment completion time
+        // This ensures ended_at reflects when payment was actually processed
+        $rawDuration = abs(now()->diffInMinutes($this->transaction->started_at)); // Calculate based on when payment was processed
+        $calculatedDuration = max(0, intval($rawDuration)); // Apply same logic as TableGrid
+        
+        // Calculate total based on the actual duration at payment completion time
+        $table = $this->transaction->table; // Make sure table relation is loaded
+        
+        // Apply minimum 1-hour rule and round up to nearest hour
+        $actualHours = max(1, ceil($calculatedDuration / 60));
+        $tableRatePerHour = $table->hourly_rate;
+        $tableCost = $tableRatePerHour * $actualHours;
+        
+        // Calculate total including additional items
+        $itemsCost = $this->transaction->items->sum('total_price');
+        $calculatedTotal = $tableCost + $itemsCost;
+
+        // Calculate the correct change amount based on the recalculated total
+        $changeAmount = max(0, $this->amountReceived - $calculatedTotal);
 
         Log::info('PaymentProcess processPayment: Checking amount received', [
             'amount_received' => $this->amountReceived,
             'transaction_total_old' => $this->transaction->total,
-            'transaction_total_new' => $totalToCompare ?? 'null',
-            'is_amount_less_than_total' => $this->amountReceived < $totalToCompare,
+            'calculated_total' => $calculatedTotal,
+            'is_amount_less_than_total' => $this->amountReceived < $calculatedTotal,
         ]);
 
-        if ($this->amountReceived < $totalToCompare) {
+        if ($this->amountReceived < $calculatedTotal) {
             session()->flash('error', 'Jumlah yang diterima kurang dari total tagihan.');
             return;
         }
@@ -130,66 +144,26 @@ class PaymentProcess extends Component
         // Emit event to show loading
         $this->dispatch('paymentStarted');
 
-        // Check if duration_minutes is still 0, calculate it as a fallback
+        // Update transaction status to completed with the actual payment completion time
         $updateData = [
             'status' => 'completed',
             'payment_method' => $this->paymentMethod,
-            'change_amount' => $this->change,
+            'change_amount' => $changeAmount,
             'cash_received' => $this->amountReceived,
-            'ended_at' => now(),
+            'ended_at' => now(), // Set ended_at to the actual payment completion time
+            'duration_minutes' => $calculatedDuration, // Duration based on payment completion time
+            'total' => $calculatedTotal, // Recalculate total based on actual duration
         ];
 
-        Log::info('BEFORE INTVAL CHECK', [
-            'transaction_duration_minutes' => $this->transaction->duration_minutes,
-        ]);
-
-        // Fallback: Calculate duration if it was not set correctly earlier
-        $fallbackApplied = false;
-        Log::info('PaymentProcess processPayment: Checking duration_minutes for fallback', [
-            'transaction_duration_minutes' => $this->transaction->duration_minutes,
-            'intval_result' => intval($this->transaction->duration_minutes),
-            'is_intval_zero' => intval($this->transaction->duration_minutes) === 0,
-        ]);
-        
-        if (intval($this->transaction->duration_minutes) === 0) {
-            $rawDuration = abs(now()->diffInMinutes($this->transaction->started_at)); // Gunakan abs untuk workaround bug diffInMinutes
-            $calculatedDuration = max(0, intval($rawDuration)); // Apply same logic as TableGrid
-            
-            // Hitung total baru berdasarkan duration_minutes yang dihitung ulang
-            $table = $this->transaction->table; // Pastikan relasi table dimuat
-            Log::info('PaymentProcess processPayment: Fallback table info', [
-                'table_object' => $table ? 'exists' : 'null',
-                'table_hourly_rate' => $table ? $table->hourly_rate : 'null',
-            ]);
-            
-            if ($table) {
-                $ratePerMinute = $table->hourly_rate / 60;
-                $calculatedTotal = $calculatedDuration * $ratePerMinute;
-
-                $updateData['duration_minutes'] = $calculatedDuration;
-                $updateData['total'] = $calculatedTotal;
-                $fallbackApplied = true;
-                
-                Log::info('PaymentProcess processPayment: Fallback applied', [
-                    'calculated_duration' => $calculatedDuration,
-                    'rate_per_minute' => $ratePerMinute,
-                    'calculated_total' => $calculatedTotal,
-                ]);
-            }
-        }
-
-        // Log untuk debugging durasi sebelum update di processPayment
         Log::info('PaymentProcess processPayment: Updating transaction', [
             'transaction_id' => $this->transaction->id,
-            'fallback_applied' => $fallbackApplied,
-            'original_duration_minutes' => $this->transaction->duration_minutes,
-            'raw_duration_for_fallback' => $rawDuration ?? null,
-            'calculated_duration_for_fallback' => $calculatedDuration ?? null,
+            'calculated_duration' => $calculatedDuration,
+            'calculated_total' => $calculatedTotal,
             'update_data_keys' => array_keys($updateData),
             'ended_at_for_update' => now(),
         ]);
 
-        // Update transaction status to completed (and potentially duration_minutes as fallback)
+        // Update transaction with correct ended_at and duration
         $this->transaction->update($updateData);
 
         // Log untuk debugging durasi setelah update di processPayment
@@ -301,7 +275,7 @@ class PaymentProcess extends Component
         } else {
             $durationMinutes = $this->transaction->started_at->diffInMinutes(now());
         }
-        $durationHours = ceil($durationMinutes / 60);
+        $durationHours = max(1, ceil($durationMinutes / 60)); // Round up to next hour with minimum 1 hour
         $printer->text("Start Time: " . $this->transaction->started_at->format('H:i') . "\n");
         $printer->text("End Time: " . ($this->transaction->ended_at ? $this->transaction->ended_at->format('H:i') : now()->format('H:i')) . "\n");
         $printer->text("Duration (Rounded): " . $durationHours . " hour(s)\n");
