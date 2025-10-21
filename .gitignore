@@ -1,0 +1,89 @@
+# Created by .ignore (https://github.com/mschilde/generator-gitignore)
+# For Laravel 11
+
+
+# Runtime data
+logs/
+*.log
+laravel.log
+node_modules/
+public/hot
+public/storage
+storage/*.key
+vendor/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+!Thumbs.db
+
+# Laravel 11
+bootstrap/cache/
+node_modules/
+public/build/
+storage/
+composer.lock
+.env
+.env.*
+!.env.example
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# PHP/COMPOSER
+/vendor/
+composer.lock
+.phpunit.result.cache
+
+# Laravel Caches
+bootstrap/cache/config.php
+bootstrap/cache/services.php
+bootstrap/cache/packages.php
+
+# Laravel Session
+storage/framework/sessions/*
+
+# Laravel Logs
+storage/logs/*
+
+# Laravel Filesystem
+storage/app/*.json
+storage/app/public/*
+
+# Environment
+.env
+.env.backup
+.env.local
+.env.production
+.env.staging
+.env.testing
+.env.*
+
+# Editor
+.vscode/
+.idea/
+
+# Images
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.bmp
+*.ico
+*.svg
+*.webp
