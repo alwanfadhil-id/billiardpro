@@ -1,0 +1,139 @@
+# Created by .ignore (https://github.com/mschilde/generator-gitignore)
+# For Laravel 11
+
+
+# Runtime data
+logs/
+*.log
+laravel.log
+node_modules/
+public/hot
+public/storage
+storage/*.key
+vendor/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+!Thumbs.db
+
+# Laravel 11
+bootstrap/cache/
+node_modules/
+public/build/
+storage/
+composer.lock
+.env
+.env.*
+!.env.example
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# PHP/COMPOSER
+/vendor/
+composer.lock
+.phpunit.result.cache
+
+# Laravel Caches
+bootstrap/cache/config.php
+bootstrap/cache/services.php
+bootstrap/cache/packages.php
+
+# Laravel Session
+storage/framework/sessions/*
+
+# Laravel Logs
+storage/logs/*
+
+# Laravel Filesystem
+storage/app/*.json
+storage/app/public/*
+
+# Environment
+.env
+.env.backup
+.env.local
+.env.production
+.env.staging
+.env.testing
+.env.*
+
+# Editor
+.vscode/
+.idea/
+
+# Images
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.bmp
+*.ico
+*.svg
+*.webp
+
+# Additional ignores for IDE and system files
+*.tmp
+*.temp
+*.cache
+*.swp
+*~
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+!Thumbs.db
+desktop.ini
+
+# Additional PHP/Laravel ignores
+.php_cs
+.php_cs.dist
+.phpunit.result.cache
+.php-cs-fixer.cache
+.npm
+.npx
+.yarn-integrity
+.yarn-metadata.json
+node-pre-gyp
+.nyc_output
+.cobertura_coverage
+
+# Database and environment
+*.db
+*.db.*
+*.env.local
+*.env.*.local
+.env.production
+.env.staging
+.env.testing
+
+# Archive
+*.zip
+*.tar
+*.gz
+*.rar
+*.7z
+
+# Log files
+*.log
+laravel.log
+logs/
